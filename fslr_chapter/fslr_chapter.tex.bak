@@ -1,0 +1,771 @@
+%
+%\title{\pkg{fslr}: Connecting the FSL Software with R}
+%\author{by John Muschelli, Elizabeth Sweeney, Martin Lindquist, and Ciprian Crainiceanu}
+%
+%\maketitle
+%
+%% No analytic pipeline for processing the data
+%% Blog post about data
+%\abstract{
+%We present the package \CRANpkg{fslr}, a set of R functions that interface with FSL (FMRIB Software Library), a commonly-used open-source software package for processing and analyzing neuroimaging data.  The \pkg{fslr} package performs operations on \code{nifti} image objects in R using command-line functions from FSL, and returns R objects back to the user.  \pkg{fslr} allows users to develop image processing and analysis pipelines based on FSL functionality while interfacing with the functionality provided by R.  We present an example of the analysis of structural magnetic resonance images, which demonstrates how R users can leverage the functionality of FSL without switching to shell commands.  
+%}
+
+
+
+\renewcommand{\thesubfigure}{\Alph{subfigure}}
+
+%{\scriptsize
+%\begin{tabular}{cl}
+%\hline
+%MRI & Magnetic Resonance Imaging/Image \\
+%PD & Proton Density \\
+%FLAIR & Fluid-Attenuated Inversion Recovery \\
+%MS & Multiple Sclerosis \\ 
+%FMRIB & Functional MRI of the Brain Group\\
+%MNI & Montreal Neurological Institute \\
+%FSL & FMRIB Software Library \\
+%FAST & FMRIB's Automated Segmentation Tool \\
+%FLIRT & FMRIB's Linear Image Registration Tool \\
+%BET & Brain Extraction Tool \\
+%FNIRT & FMRIB's Nonlinear Image Registration Tool \\
+%\hline
+%Glossary of acronyms used
+%\end{tabular}
+%}
+%
+%{\scriptsize
+%\begin{tabular}{cl|cl}
+%\multicolumn{4}{c}{Glossary of acronyms} \\ \hline
+%MRI & Magnetic Resonance Imaging/Image & FSL & FMRIB Software Library \\
+%PD & Proton Density & FAST & FMRIB's Automated Segmentation Tool \\
+%FLAIR & Fluid-Attenuated Inversion Recovery & FLIRT & FMRIB's Linear Image Registration Tool \\
+%MS & Multiple Sclerosis & BET & Brain Extraction Tool \\
+%FMRIB & Functional MRI of the Brain Group & FNIRT & FMRIB's Nonlinear Image Registration Tool \\
+%MNI & Montreal Neurological Institute \\
+%\hline
+%\end{tabular}
+%}
+
+\chapter{\pkg{fslr}: Connecting the FSL Software with R}
+\section{Introduction}
+\label{sec:intro}
+
+FSL (FMRIB Software Library) is a commonly-used software for processing and analyzing neuroimaging data \citep{jenkinson_fsl_2012}.  This software provides open-source, command-line tools and a graphical user interface (GUI) for image processing tasks such as image smoothing, brain extraction \citep{smith_fast_2002}, bias-field correction, segmentation \citep{zhang_segmentation_2001}, and registration \citep{jenkinson_global_2001, jenkinson_improved_2002}.    Many of these functions are used extensively in medical imaging pipelines.   According to a recent survey paper by \citet{carp_secret_2012}, 13.9\% of published neuroimaging studies used FSL.
+
+There exist a number of R packages for reading and manipulating image data, including \CRANpkg{AnalyzeFMRI} \citep{bordier_temporal_2011}, \CRANpkg{RNiftyReg} \citep{modat_rniftyreg:_2013}, and \CRANpkg{fmri} \citep{tabelow_statistical_2011} (see the Medical Imaging CRAN task view \url{http://cran.r-project.org/web/views/MedicalImaging.html} for more information).  Although these packages are useful for performing image analysis, much of the fundamental functionality that FSL and other imaging software provide is not currently implemented in R.  In particular, this includes algorithms for performing slice-time correction, motion correction, brain extraction, tissue-class segmentation, bias-field correction, co-registration, and normalization. This lack of functionality is currently hindering R users from performing complete analysis of image data within R.  Instead of re-implementing FSL functions in R, we propose a user-friendly interface between R and FSL that preserves all the functionality of FSL, while retaining the advantages of using R.  This will allow
+%Moreover, we do not believe they need to be implemented in R directly if readily available.  These implementations aid in using R for neuroimaging analysis and interfacing existing neuroimaging software can help 
+R users to implement complete imaging pipelines without necessarily learning software-specific syntax.  
+
+The \CRANpkg{fslr} package relies heavily on the \CRANpkg{oro.nifti} \citep{whitcher_working_2011} package implementation of images (referred to as \code{nifti} objects) that are in the Neuroimaging Informatics Technology Initiative (NIfTI) format, as well as other common image formats such as ANALYZE.  \pkg{oro.nifti} also provides useful functions for plotting and manipulating images.  \pkg{fslr} expands on the \pkg{oro.nifti} package by providing additional functions for manipulation of \code{nifti} objects.
+
+% , such as \code{cal\_img}, which will reset the \code{cal\_min} and \code{cal\_max} slots on a \code{nifti} object, which are used to determine colors when plotting.
+
+\section{\pkg{fslr} workflow}
+The general workflow for most \pkg{fslr} functions that interface with FSL is as follows:
+\begin{enumerate}
+\item Filename or \code{nifti} object is passed to \pkg{fslr} function.
+\item FSL command is created within \pkg{fslr} function and executed using the \code{system} command.
+\item Output is written to disk and/or read into R and returned from the function.
+\end{enumerate}
+
+From the user's perspective, the input/output process is all within R.  The advantage of this approach is that the user can read in an image, do manipulations of the \code{nifti} object using standard syntax for arrays, and pass this object into the \pkg{fslr} function without using FSL-specific syntax written in a shell language.  Also, one can perform image operations using FSL, perform operations on the \code{nifti} object in R that would be more difficult using FSL, and then perform additional operations using FSL by passing that object to another \pkg{fslr} command.  Thus, users can create complete pipelines for the analysis of imaging data by accessing FSL through \pkg{fslr}. 
+%analysis using FSL using only \code{fslr} commands.
+
+\subsection{\pkg{fslr} setup}
+To use \pkg{fslr}, a working installation of FSL is required.  The following code was run using FSL version 5.0.0. \pkg{fslr} must also have the path of FSL specified.  If using R from a shell environment, and the \code{FSLDIR} environment variable is set (which can be done when installing FSL), \pkg{fslr} will use this as the path to FSL.  If using R through a graphical user interface (GUI) such as RStudio (RStudio, Boston, MA), environmental variables and paths are not explicitly exported.  Therefore, \code{FSLDIR} is not set, and the path to FSL can be specified using \code{options(fsl.path="/path/to/fsl")}. 
+
+\pkg{fslr} also requires an output type for the format of images returned from FSL.  Some \pkg{fslr} functions produce intermediate files that the user may want removed after the command is executed.  When the filename argument is passed to a \pkg{fslr} command, the extension of the file does not need to be specified, but simply the prefix.  When the command is executed, the FSL command appends an extension, and to remove this file, using the R command \code{file.remove}, the extension for the file is required.  If working in a shell environment, \pkg{fslr} will use the environment variable for output type: \code{FSLOUTPUTTYPE}.  If working in a GUI, the default is given by \code{NIFTI\_GZ}, which returns compressed NIfTI images, ending in ``.nii.gz''.  This can be changed by setting the \code{fsl.outputtype} option.  See \url{http://fsl.fmrib.ox.ac.uk/fsl/fsl-4.1.9/fsl/formats.html} for a description of FSL output types.
+
+The R code below is all that is needed to load the \pkg{fslr} package, set the path to FSL, and specify the output type for files, respectively.
+\begin{Schunk}
+\begin{Sinput}
+library(fslr)
+options(fsl.path="/usr/local/fsl")
+options(fsl.outputtype = "NIFTI_GZ")
+\end{Sinput}
+\end{Schunk}
+
+\subsection{Image preprocessing with \pkg{fslr}}
+
+We present a complete analysis of structural magnetic resonance imaging (MRI) data performed using \pkg{fslr} and R.  Images were obtained from a patient with multiple sclerosis (MS) at 2 different visits \citep{sweeney_automatic_2013}, located at \url{bit.ly/FSL_Data}.  At each visit, the image modalities obtained were T1-weighted (T1), T2-weighted (T2), fluid-attenuated inversion recovery (FLAIR), and proton density (PD). In this example we will perform a MRI bias-field correction using FAST (FMRIB's Automated Segmentation Tool) \citep{zhang_segmentation_2001}, co-register scans within visits to the T1 image of that visit, and register T1 images between visits.  Once these operations have been performed, one can take within-modality difference images to see the changes between visits.  We will also register all images to a common stereotaxic template, as this is common in population-based analyses.
+
+
+% eloyan_health_2014
+\subsection{Bias-field correction}
+
+MRI images typically exhibit good contrast between soft tissue classes, but intensity inhomogeneities in the radio frequency (RF) field can cause differences in the ranges of tissue types at different spatial locations.  These inhomogeneities can cause problems with algorithms based on histograms, quantiles, or raw intensities \citep{zhang_segmentation_2001}.  Therefore, correction for image inhomogeneities is a crucial step in many analyses.  FSL implements the bias-field correction from \citet{guillemaud_estimating_1997} in its FAST segmentation pipeline \citep{zhang_segmentation_2001}.  
+ 
+
+
+
+
+
+
+%We have a \code{data.frame} of filenames of the images, and the output filenames for the bias-field inhomogeneity corrected images.  
+The \code{fsl\_biascorrect} command from \pkg{fslr} will create the corrected images.  We pass in the filename in the \code{file} argument, any additional options for FSL in the \code{opts} argument, such as \code{-v} for {\bf v}erbose diagnostic outputs, and the {\bf out}put {\bf file}name in the \code{outfile} argument, which is our inhomogeneity-corrected image.
+
+
+
+\begin{Schunk}
+\begin{Sinput}
+fsl_biascorrect(file = "01-Baseline_T1.nii.gz", 
+                outfile= "01-Baseline_T1_FSL_BiasCorrect",
+                opts= "-v")
+\end{Sinput}
+\end{Schunk}
+
+
+
+
+We can observe the difference in voxel values from the baseline T1 image compared to the bias-corrected version in Figure~\ref{fig:bias_correct}.  In panel~\protect\subref*{t1_ortho} we display the T1 image, and in panel~\protect\subref*{bc_t1_ortho} we display the bias-corrected T1 image.  The T1 image is brighter in the middle of the image, while the bias-corrected image is more uniform in white matter (brighter regions).  As this difference may be hard to distinguish visually, we present the scatterplot of these images in Figure~\ref{fig:bias_correct}\protect\subref*{t1_vs_bc_t1}, using the \CRANpkg{ggplot2} package \citep{wickham_ggplot2:_2009}.  Note, both scales are in arbitrary units (a.u.).
+
+
+\begin{figure}
+  \subfloat{
+  \label{t1_ortho}
+\includegraphics[width = 0.245\textwidth]{figure/T1_Ortho.png}
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{bc_t1_ortho}
+\includegraphics[width = 0.245\textwidth]{figure/BC_T1_Ortho.png} 
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{t1_vs_bc_t1}
+  \includegraphics[width = 0.245\textwidth]{figure/plot_bc_data.pdf}
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{t1_vs_bc_t1_zoom}
+  \includegraphics[width = 0.245\textwidth]{figure/plot_bc_data_zoom-1.pdf}
+}
+\caption{{\bf Results of Inhomogeneity Correction.}  We present the original T1 image~\protect\subref{t1_ortho}, bias-corrected T1 image~\protect\subref{bc_t1_ortho}, and the scatterplot of the sampled values comparing the values from the T1 image to the bias-corrected values \protect\subref{t1_vs_bc_t1}.  We see in panel~\protect\subref*{t1_vs_bc_t1} for values in the low range of the data ($< 10$), the T1 values and bias-corrected T1 values, on average, fall along the diagonal (blue line), which is further illustrated in panel~\protect\subref*{t1_vs_bc_t1_zoom}, which plots values $< 40$.  Values $> 10$ for the original T1 image are lower than the bias-corrected T1 values shown by a generalized additive model (GAM) smoother (pink line, panel~\protect\subref*{t1_vs_bc_t1}).  }
+\label{fig:bias_correct}
+\end{figure}
+
+% Below we subset data where the T1 is not zero, as zero is the background voxel intensity and then subsample the data for visualization.  We also plot the data using \CRANpkg{ggplot2} \citep{wickham_ggplot2:_2009}, shown in figure~\ref{fig:bias_correct}\protect\subref*{t1_vs_bc_t1}.  Note, the scales are in arbitrary units (a.u.).
+
+
+
+The blue line in Figure~\ref{fig:bias_correct}\protect\subref*{t1_vs_bc_t1} represents the 45$^{\circ}$ diagonal line, where the original and bias-corrected image intensities are equal ($X = Y$), and the pink line represents a generalized additive model (GAM) \citep{hastie_generalized_1990} scatterplot smoother estimate obtained using the \CRANpkg{mgcv} package \citep{wood_fast_2011}.  We see that for values in the low range of the data ($< 10$), the T1 values and bias-corrected T1 values, on average, fall along the diagonal, but in the higher range the bias-corrected values are lower.
+
+
+
+
+
+
+\section{Within-visit co-registration}
+All subsequent steps will be performed on the bias-corrected images.  We will first co-register the images within each separate visit to the T1 image from that visit.  This operation overlays the images on one another and allows us to investigate joint distributions of voxel intensities from different image modalities.  This is performed using FMRIB's Linear Image Registration Tool (FLIRT) \citep{jenkinson_global_2001, jenkinson_improved_2002}.  As the images are from the same individual, we may assume that the overall shape of the brain has not changed, but each scan may have undergone a translation and/or rotation in space.  Therefore, we will use a rigid-body transformation, with $6$ degrees of freedom (dof).  
+
+%We will use another \code{data.frame} with image input and output names, including the T1 image of that visit, the image to be registered, the output transformation matrix and output filename.
+
+
+
+
+
+
+The \pkg{fslr} command \code{flirt} calls the FSL command \code{flirt}, taking the input image (\code{infile}) and the reference image that serves as a template (\code{reffile}).  Any additional options for FLIRT can be passed using the \code{opts} argument.  We will use the defaults (i.e. trilinear interpolation) and the \code{-v} option for diagnostic messages to be printed.  Since we are doing a rigid-body transformation, we set the degrees of freedom (\code{dof}) to 6. Here we present the code for registering the baseline T2 image to the baseline T1 image; we will subsequently repeat this process for the baseline FLAIR and PD images and for the follow-up scans. 
+\begin{Schunk}
+\begin{Sinput}
+flirt(reffile = "01-Baseline_T1_FSL_BiasCorrect",  
+      infile = "01-Baseline_T2_FSL_BiasCorrect", 
+      omat = "01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1.mat", 
+      dof = 6, 
+      outfile = "01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1", 
+      opts = "-v")
+\end{Sinput}
+\end{Schunk}
+
+
+
+The resulting image transformation is stored using the file name passed to the \code{omat} ({\bf o}utput {\bf mat}rix) argument.  This matrix can be used to transform other images, that were in the same space as the input image, to the reference image space.  The \pkg{fslr} package will currently only return \code{nifti} objects, and not a list of objects, such as the output image, transformation matrix, etc.  Thus, any transformation files that are needed after the command is executed must be specified.  
+
+After co-registration, one could compare images of different modalities at the same voxels, such as T1 versus FLAIR images, which is presented in Figure~\ref{fig:coreg}.  The images are presented at the same cross section for the baseline T1 (Panel~\ref{ft1_ortho}) and FLAIR (Panel~\ref{flair_t1_ortho}) images.  The same brain areas are presented in each modality, indicating adequate registration.  
+% The scatterplot illustrates the joint distribution of intensities for these images; the per-voxel signal generated by each imaging modality are in arbitrary units and should not necessarily be equal or follow a particular (e.g.~linear) relationship.
+
+
+In the previous example, we presented a rigid-body transformation, using the default parameters.  \code{flirt} has options for different cost functions to optimize over, interpolation operators to estimate voxel intensity, and additional degrees of freedom for performing affine transformations.  These options can be passed to the FSL \code{flirt} command using the \code{opts} argument in the \pkg{fslr} \code{flirt} function.  
+
+Note that each \pkg{fslr} function has a corresponding help function, which is the \pkg{fslr} command appended with \code{.help()}, which prints out the FSL help page for that function.  For example, users can see which options can be changed in the FSL \code{flirt} command by executing the \code{flirt.help()} function.   Additional non-linear registration techniques are presented in the section~``Registration to the MNI Template''.  
+
+
+
+
+
+
+
+
+
+\begin{figure}
+  \subfloat{
+  \label{ft1_ortho}
+\includegraphics[width = 0.42\textwidth]{figure/BC_T1_Ortho_A.png}
+}
+\hfill
+  \subfloat{
+  \label{flair_t1_ortho}
+\includegraphics[width = 0.42\textwidth]{figure/FLAIR_Ortho_B_FLIRT.png} 
+}
+\caption{{\bf Results of within-visit co-registration.}  We present the bias-corrected T1 image~\protect\subref{ft1_ortho} and the co-registered bias-corrected FLAIR image~\protect\subref{flair_t1_ortho}.  }
+\label{fig:coreg}
+\end{figure}
+
+
+\section{Between-visit co-registration}
+Though across-modality comparisons can be achieved by performing within-visit co-registration, across-visit registration is required for assessing within-modality differences between longitudinal scans.   To compute difference images, we co-register follow-up images to the baseline images within each modality.  Similar to the within-visit co-registration, we use a rigid-body transformation.  We will register the T1 images from baseline and follow-up, and apply this transformation to the co-registered-to-T1 images from above (see Figure~\ref{fig:reg} for illustration).  
+
+\begin{figure}
+\centering
+\includegraphics[width = 0.9\textwidth]{Reg_Figure_Option1.png}
+\caption{{\bf Between-visit registration process.}  First, we registered all scans within a visit (baseline or follow-up) to the T1 image.  We then registered the follow-up T1 image to the baseline T1 image and applied the transformation to the follow-up T2, FLAIR, and PD images previously co-registered to the follow-up T1 image. }
+\label{fig:reg}
+\end{figure}
+
+Though this registration involves two interpolations of the data and may not be optimal for within-modality comparisons, we have already obtained the co-registered-to-T1 images in the section ``Within-Visit Co-registration'' and must perform only one additional registration.  This operation also demonstrates how to apply transformation matrices in \pkg{fslr}.  Here we register the follow-up T1 image to the baseline T1 image, again using a rigid-body transformation (6 dof):
+
+\gobblepars
+\begin{Schunk}
+\begin{Sinput}
+flirt(reffile = "01-Baseline_T1_FSL_BiasCorrect", 
+      infile = "01-Followup_T1_FSL_BiasCorrect", 
+      omat = "01-Followup_T1_FSL_BiasCorrect_rigid_to_BaseT1.mat", 
+      dof = 6,
+      outfile = "01-Followup_T1_FSL_BiasCorrect_rigid_to_BaseT1", 
+      opts = "-v")
+\end{Sinput}
+\end{Schunk}
+\gobblepars
+
+
+Now, both T1 images are aligned in the space of the baseline T1 image.  We present the results in Figure~\ref{fig:flirt}: the bias-corrected baseline T1 image in~\protect\subref*{flirt_base} and the co-registered bias-corrected follow-up T1 in~\protect\subref*{flirt_fup}.   The images displayed at the same cross section correspond to the same brain area, indicating a good registration.
+
+
+
+
+\begin{figure}
+  \subfloat{
+  \label{flirt_base}
+\includegraphics[width = 0.48\textwidth]{figure/BC_T1_Ortho_A.png}
+}
+\hfill
+  \subfloat{
+  \label{flirt_fup}
+\includegraphics[width = 0.48\textwidth]{figure/FLIRT_Followup_T1.png} 
+}
+\caption{{\bf Results from FLIRT.} The bias-corrected baseline T1 is presented in~\protect\subref{flirt_base} and the registered bias-corrected follow-up T1 is presented in~\protect\subref{flirt_fup}, each displayed at the same intersection. We observe that the observed images correspond to the same brain area, indicating a good registration. }
+\label{fig:flirt}
+\end{figure}
+
+
+Using the \code{flirt\_apply} function from \pkg{fslr}, we can apply the transformation matrix to the T2, PD, and FLAIR images from the follow-up visit, previously co-registered to the T1 from follow-up, to align them to the baseline T1 image space.  The code below aligns the follow-up T2 image, previously registered to the follow-up T1 image, to the baseline T1 image:
+
+
+\begin{Schunk}
+\begin{Sinput}
+flirt_apply(reffile = "01-Baseline_T1_FSL_BiasCorrect", 
+		# register to this
+            infile = "01-Followup_T2_FSL_BiasCorrect_rigid_to_T1", 
+            	# reg to Followup T1
+            initmat = "01-Followup_T1_FSL_BiasCorrect_rigid_to_BaseT1.mat", 
+            	#transform
+            outfile = "01-Followup_T2_FSL_BiasCorrect_rigid_to_BaseT1" 
+            	# output file
+            ) 
+\end{Sinput}
+\end{Schunk}
+
+
+
+In Figure~\ref{fig:reg_results}, we display each image after FLIRT has been applied.  Each image is in the baseline T1 image space, displayed at the same cross section.  Each panel shows the same brain areas across modalities, indicating adequate registration.  We see that some areas of the brain are cropped from the field of view, which may be problematic if relevant brain areas are removed.  We have registered all images with the skull and extracranial tissue included.  A better method may be to perform registration on brain tissues only, in which case we must perform brain extraction.
+
+\begin{figure}
+  \subfloat{
+  \label{reg_t1_ortho}
+\includegraphics[width = 0.245\textwidth]{figure/BC_T1_Ortho_A_FLIRT.png}
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{reg_t2_ortho}
+\includegraphics[width = 0.245\textwidth]{figure/01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1.png} 
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{reg_flair_ortho}
+  \includegraphics[width = 0.245\textwidth]{figure/01-Baseline_FLAIR_FSL_BiasCorrect_rigid_to_T1.png}
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{reg_pd_ortho}
+  \includegraphics[width = 0.245\textwidth]{figure/01-Baseline_PD_FSL_BiasCorrect_rigid_to_T1.png}
+} \hspace*{-0.9em}
+\newline
+  \subfloat{
+  \label{reg_t1_ortho_fup}
+  \includegraphics[width = 0.245\textwidth]{figure/E_FLIRT_Followup_T1.png} 
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{reg_t2_ortho_fup}
+\includegraphics[width = 0.245\textwidth]{figure/01-Followup_T2_FSL_BiasCorrect_rigid_to_BaseT1.png} 
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{reg_flair_ortho_fup}
+  \includegraphics[width = 0.245\textwidth]{figure/01-Followup_FLAIR_FSL_BiasCorrect_rigid_to_BaseT1.png} 
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{reg_pd_ortho_fup}
+  \includegraphics[width = 0.245\textwidth]{figure/01-Followup_PD_FSL_BiasCorrect_rigid_to_BaseT1.png} 
+} \hspace*{-0.9em}
+\caption{{\bf Between-visit registration results.} The complete set of acquired images, first co-registered within visit to the T1 image of that visit, then registered to the baseline T1 image using the follow-up T1 to baseline T1 transformation matrix.  All registrations performed rigid-body transformations.}
+\label{fig:reg_results}
+\end{figure}
+
+
+
+\section{Brain extraction}
+The process of extracting brain tissue from the acquired image, referred to as brain extraction or skull stripping, is a crucial step in many analyses.  We will perform brain extraction using FSL's brain extraction tool (BET) \citep{smith_fast_2002, jenkinson_bet2:_2005} using parameters recommended by \citet{popescu_optimizing_2012}, which were derived from patients with MS.  No other published R package on CRAN (e.g~ \CRANpkg{AnalyzeFMRI}, \CRANpkg{RNiftyReg}, or \CRANpkg{fmri}) has brain extraction functionality for brain imaging.  Other neuroimaging software provide brain extraction, such as AFNI \citep{cox_afni:_1996}, SPM \citep{ashburner_unified_2005}, and Freesurfer \citep{fischl_freesurfer_2012}, and multi-atlas label fusion techniques \citep{doshi_multi-atlas_2013}.
+ 
+
+
+\begin{Schunk}
+\begin{Sinput}
+fslbet(infile =  '01-Baseline_T1', 
+       outfile = "01-Baseline_T1_FSL_BiasCorrect_Brain", 
+       opts = "-B -f 0.1 -v",  # from Popescu et al.
+       betcmd = "bet", 
+       intern=FALSE)
+\end{Sinput}
+\end{Schunk}
+
+
+We ran BET on the non-corrected T1 image as the \code{-B} option performs inhomogeneity correction from FAST as part of the procedure.  The option \code{-f 0.1} denotes the fractional intensity (FI) parameter in BET: it varies between $0$ and $1$ and determines the location of the edge of the segmented brain image; smaller values correspond to larger brain masks. In Figure~\ref{fig:bet}, the bias-corrected T1 image is shown with the brain mask overlaid in red (panel~\protect\subref*{bet_mask}) and the resulting masked brain (panel~\protect\subref*{bet_brain}).  We see that the brain extraction performed well, not including any areas of the skull or the neck while not discarding brain tissue.  Towards the back of the brain, some areas of the subarachnoid space remain, which may be unacceptable for certain analyses, such as estimation of the volume of brain tissue.
+
+
+
+\begin{figure}
+  \subfloat{
+  \label{bet_mask}
+\includegraphics[width = 0.48\textwidth]{figure/plot_bet_mask.png}
+}
+\hfill
+  \subfloat{
+  \label{bet_brain}
+\includegraphics[width = 0.48\textwidth]{figure/plot_bet_brain.png} 
+}
+\caption{{\bf Results from BET.} In~\protect\subref{bet_mask}, we show the bias-corrected T1 image with the mask from BET overlaid in red.  In~\protect\subref{bet_brain}, we display the extracted brain.  We see that the brain extraction performed well, not including any areas of the skull or the neck while not discarding large areas of the brain.}
+\label{fig:bet}
+\end{figure}
+
+Note that \code{fslbet} writes both a file containing the brain-extracted image and another image containing the binary brain mask.  As all other images are registered to the baseline T1 space, we can use this mask to extract the brain from other images, such as the baseline T2 image, using the \pkg{fslr} function \code{fslmask}.  In this example, we mask the registered-to-T1, bias-corrected T2 image with the binary brain mask, save the image to the filename specified in \code{outfile}, and also set the \code{retimg} option to \code{TRUE}, indicating the \code{fslmask} command to {\bf ret}urn the {\bf im}a\textbf{g}e.  The returned object is a \code{nifti} object, assigned to the R object \code{mask}:
+\begin{Schunk}
+\begin{Sinput}
+mask <- fslmask(file="01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1", 
+                mask = "01-Baseline_T1_FSL_BiasCorrect_Brain_mask",
+                outfile = "01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1_Brain", 
+                retimg = TRUE)
+\end{Sinput}
+\end{Schunk}
+\gobblepars
+
+
+We now have all images in the same stereotaxic space with the brain extracted.  
+
+\section{Registration to the MNI template}
+In many studies, information is aggregated across a population of images from different participants.  For the information to have the same interpretation spatially across participants, images from all participants need to be aligned in the same stereotaxic space (``template'' space), requiring registration to a standard template image.  A frequently used set of templates are provided by MNI (Montreal Neurological Institute). We have registered the baseline T1 image to the MNI T1 template \citep{hutchison_symmetric_2006}, included with FSL.  As an individual's brain does not necessarily have the same size as the template, it is not appropriate to use rigid-body transformations.  Instead, non-linear transformations are needed.  As these are patients with MS and have lesions, different non-linear registrations to template space can have a large impact on the outcome of analysis (see \citet{eloyan_health_2014} for discussion).
+
+
+We will first register the baseline T1 image to the T1 template using an affine registration, which can perform scaling and shearing operations in addition to translation and rotation.  Although an affine transformation has more degrees of freedom than a rigid transformation, it may not provide a registration sufficient for analysis.  We will then use FNIRT (FMRIB's Nonlinear Image Registration Tool) to achieve better overlap of local brain structures \citep{jenkinson_fsl_2012, andersson_non-linear_2007}.  As we are concerned with good overlap only in brain structures, and not in areas such as the skull, we will register the brain-extracted brain images to the brain-only template.  The \pkg{fslr} function \code{fnirt\_with\_affine} will register using \code{flirt} with an affine transformation and then non-linearly register this image to the template using \code{fnirt}.  If this affine transformation is not executed before \code{fnirt}, the image will not achieve the necessary scaling into the template space.
+
+
+\gobblepars
+\begin{Schunk}
+\begin{Sinput}
+fnirt_with_affine(infile = "01-Baseline_T1_FSL_BiasCorrect_Brain",
+                  reffile = file.path(fsldir(), "data", 
+                  "standard", "MNI152_T1_1mm_brain"),                     
+                  flirt.omat = 
+                  	"01-Baseline_T1_FSL_BiasCorrect_Brain_affine_toMNI.mat", 
+                  flirt.outfile = 
+                  	"01-Baseline_T1_FSL_BiasCorrect_Brain_affine_toMNI", 
+                  outfile = "01-Baseline_T1_FSL_BiasCorrect_Brain_toMNI")
+\end{Sinput}
+\end{Schunk}
+\gobblepars
+
+\gobblepars
+
+ 
+The results of the registration can be seen in Figure~\ref{fig:fnirt_slice}.  Each panel represents a different axial slice ($z =$ 25, 45, 92, or 137) in the template space of the template image (\protect\subref*{mni_ortho_25}, \protect\subref*{mni_ortho_45}, \protect\subref*{mni_ortho_92}, \protect\subref*{mni_ortho_137}) or the registered T1 image (\protect\subref*{t1_warp_25}, \protect\subref*{t1_warp_45}, \protect\subref*{t1_warp_92}, \protect\subref*{t1_warp_137}).  Each slice shows the registered T1 image has similar brain structure represented in the same area as the template image, indicating good registration.
+
+
+% \begin{figure}
+%   \subfloat{
+%   \label{mni_ortho}
+% \includegraphics[width = 0.48\textwidth]{figure/MNI_Ortho.png} 
+% }
+% \hfill
+%   \subfloat{
+%   \label{t1_warp}
+% \includegraphics[width = 0.48\textwidth]{figure/T1_MNI_Warp.png}
+% }
+% \caption{{\bf Results from FNIRT.} In~\protect\subref{mni_ortho}, we display the MNI template image.  In~\protect\subref{t1_warp} we display the registered-to-template, brain-extracted T1 image.  We note that areas of the brain coincide between the template and registered image.}
+% \label{fig:fnirt_ortho}
+% \end{figure}
+
+
+\begin{figure}
+  \subfloat{
+  \label{mni_ortho_25}
+\includegraphics[width = 0.245\textwidth]{figure/MNI_Warp_Slice_25.png} 
+} \hspace*{-0.9em}
+  \subfloat{
+  \label{t1_warp_25}
+\includegraphics[width = 0.245\textwidth]{figure/T1_MNI_Ortho_Slice_25.png}
+} \hspace*{-0.9em}
+  \subfloat{
+  \label{mni_ortho_45}
+\includegraphics[width = 0.245\textwidth]{figure/MNI_Warp_Slice_45.png} 
+} \hspace*{-0.9em}
+  \subfloat{
+  \label{t1_warp_45}
+\includegraphics[width = 0.245\textwidth]{figure/T1_MNI_Ortho_Slice_45.png}
+}\hspace*{-0.9em}
+\newline
+  \subfloat{
+  \label{mni_ortho_92}
+\includegraphics[width = 0.245\textwidth]{figure/MNI_Warp_Slice_92.png} 
+} \hspace*{-0.9em}
+  \subfloat{
+  \label{t1_warp_92}
+\includegraphics[width = 0.245\textwidth]{figure/T1_MNI_Ortho_Slice_92.png}
+} \hspace*{-0.9em}
+  \subfloat{
+  \label{mni_ortho_137}
+\includegraphics[width = 0.245\textwidth]{figure/MNI_Warp_Slice_137.png} 
+} \hspace*{-0.9em}
+  \subfloat{
+  \label{t1_warp_137}
+\includegraphics[width = 0.245\textwidth]{figure/T1_MNI_Ortho_Slice_137.png}
+}\hspace*{-0.9em}
+\caption{{\bf Results from FNIRT.} We present different axial slices of the template (\protect\subref*{mni_ortho_25}, \protect\subref*{mni_ortho_45}, \protect\subref*{mni_ortho_92}, \protect\subref*{mni_ortho_137}) and the registered T1 image (\protect\subref*{t1_warp_25}, \protect\subref*{t1_warp_45}, \protect\subref*{t1_warp_92}, \protect\subref*{t1_warp_137}).  The slices represented are 25 (\protect\subref*{mni_ortho_25}, \protect\subref*{t1_warp_25}), 45 (\protect\subref*{mni_ortho_45}, \protect\subref*{t1_warp_45}), 92 (\protect\subref*{mni_ortho_92}, \protect\subref*{t1_warp_92}) and 137 (\protect\subref*{mni_ortho_137}, \protect\subref*{t1_warp_137}).  We note that areas of the brain coincide between the template and registered image.}
+\label{fig:fnirt_slice}
+\end{figure}
+
+
+
+\subsection{Applying transformations to co-registered data}
+Since all the data is represented in the same image space, we can apply the estimated affine transformation and non-linear warping coefficient field to each image to represent that image in template space.  The affine transformation must be applied with \code{flirt\_apply} and the warping coefficient using \code{fsl\_applywarp}, which calls the FSL \code{applywarp} function.  
+
+
+
+Here we present the application of the transformations to the baseline T2 image, previously registered to the baseline T1.  
+
+\begin{Schunk}
+\begin{Sinput}
+flirt_apply(infile = "01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1_Brain",
+            reffile = file.path(fsldir(), "data", "standard", "MNI152_T1_1mm_brain"),
+            initmat = "01-Baseline_T1_FSL_BiasCorrect_Brain_affine_toMNI.mat",
+            outfile = "01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1_Brain_toMNI")
+fsl_applywarp(infile = "01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1_Brain_toMNI",
+              reffile = file.path(fsldir(), "data", "standard", "MNI152_T1_1mm_brain"),          
+              warpfile = "01-Baseline_T1_FSL_BiasCorrect_Brain_affine_toMNI_warpcoef",
+              outfile = "01-Baseline_T2_FSL_BiasCorrect_rigid_to_T1_Brain_toMNI")
+\end{Sinput}
+\end{Schunk}
+
+These two operations can also be performed in a single call to the \pkg{fslr} \code{fnirt\_with\_affine\_apply} function.  
+
+With multiple participants, this process yields a multi-person, multi-modal, longitudinal imaging dataset that can be used for analyses.
+
+
+
+
+
+\section{Conclusion}
+The neuroimaging community has developed a large collection of tools for image processing and analysis.  R has a number of packages to perform operations on images; \BIOpkg{EBImage} is one good example \citep{EBImage}. Much of the fundamental functionality of neuroimage processing is not currently available in R, such as brain extraction and tissue segmentation.  We present \pkg{fslr} to provide R users functions for image processing and analysis that are based on FSL, an established image processing and analysis software suite.  Interfacing R with existing, powerful software provides users with thoroughly-tested software and an additional community of users, which would not be available if the functions were rewritten in R.  \pkg{fslr} should be easy to use for any standard R user; the workflow allows R users to manipulate array-like \code{nifti} objects, pass them to \pkg{fslr} functions, which return \code{nifti} objects.  Moreover, as FSL and R are open source and free, this software is readily available to all users.  
+
+There has been an increasing popularity of similar interfacing of tools within the Python community such as Nipype \citep{gorgolewski_nipype:_2011} (https://qa.debian.org/popcon.php?package=nipype).  As many users of R may not have experience with Python or bash scripting, we believe \pkg{fslr} provides a lower threshold for use in the R community.  Other packages provide R users additional neuroimaging processing functionality such as \CRANpkg{AnalyzeFMRI} \citep{bordier_temporal_2011}, \CRANpkg{RNiftyReg} \citep{modat_rniftyreg:_2013}, and \CRANpkg{fmri} \citep{tabelow_statistical_2011}.   
+
+For example, other inhomogeneity correction methods exist, such as the popular N3 \citep{sled_nonparametric_1998} and N4 \citep{tustison_n4itk:_2010}, methods which are not implemented in \pkg{fslr}. \pkg{ANTsR} (\url{http://stnava.github.io/ANTsR/index.html}) is a currently unpublished R package that interfaces with the ANTs (advanced normalization tools) software suite \citep{avants_reproducible_2011}.  ANTs has implementations of these correction methods, an increased set of registration techniques, and other methods for image processing.  Other packages such as this, along with \pkg{fslr}, can create a diverse set of tools for neuroimaging within R, building on preexisting and widely-accepted software.  
+
+%For example, we present one inhomogeneity correction method, yet other inhomogeneity correction methods exist, such as the popular N3 \citep{sled_nonparametric_1998} and novel N4 \citep{tustison_n4itk:_2010}, which are not implemented in \pkg{fslr}.  ANTsR (\url{http://stnava.github.io/ANTsR/index.html}), an R package that interfaces with the ANTs (advanced normalization tools) software suite \citep{avants_reproducible_2011}, has implementations of these correction methods and an increased set of registration techniques within R.
+
+Most importantly, as \pkg{fslr} is based on the R framework, all the benefits of using R are available, such as dynamic documents, reproducible reports, customized figures, and state-of-the-art statistical methods.  These benefits provide unique functionality compared to other software packages for neuroimaging.  
+
+All data and code processed here is located at \url{https://github.com/muschellij2/FSLR_Data}.  
+
+
+%
+%\section{Smoothing}
+%In many analyses, integrating neighboring voxels intensities can increase information.  
+
+
+
+
+
+
+
+% \begin{figure}
+%   \subfloat{
+%   \label{bet_img}
+% \includegraphics[width = 0.48\textwidth]{figure/Bet_Brain_A.png}
+% }
+% \hfill
+%   \subfloat{
+%   \label{bet_smooth}
+% \includegraphics[width = 0.48\textwidth]{figure/T1_Smooth_Img.png}
+% }
+% \caption{{\bf Smoothing the Baseline T1 Brain Image.}  }
+% \label{fig:smooth}
+% \end{figure}
+
+
+\section{Supplemental material}
+
+
+\subsection{Smoothing images}
+Let us show how to pass a Gaussian smoother over an image using \code{fslsmooth} (FSL \code{fslmaths -s} function).  First we will read in the registered-to-template baseline T1 brain image:
+
+\gobblepars
+\begin{Schunk}
+\begin{Sinput}
+t1_to_temp = readNIfTI("01-Baseline_T1_FSL_BiasCorrect_Brain_toMNI", reorient=FALSE)
+\end{Sinput}
+\end{Schunk}
+
+We will smooth the image using a Gaussian smoother with $\sigma = 3\text{mm}^3$: 
+
+\gobblepars
+\begin{Schunk}
+\begin{Sinput}
+smooth = fslsmooth(t1_to_temp, sigma = 3, retimg=TRUE)
+\end{Sinput}
+\end{Schunk}
+
+The result is presented in Figure~\ref{fig:fslr_func}\protect\subref*{smooth}.
+
+
+\subsection{Thresholding images}
+The \pkg{fslr} \code{fslbin} function will binarize a \code{nifti} image object: all values $\leq 0$ are set to $0$, and set to $1$ otherwise.  Let us binarize the registered image:
+
+
+\gobblepars
+\begin{Schunk}
+\begin{Sinput}
+binned = fslbin(t1_to_temp, retimg=TRUE)
+\end{Sinput}
+\end{Schunk}
+
+The result is presented in Figure~\ref{fig:fslr_func}\protect\subref*{bin}.
+
+
+
+The \pkg{fslr} \code{fslthresh} function provides more control for thresholding by setting a lower threshold (\code{thresh} argument) and upper threshold (\code{uthresh} argument).  These thresholds are inclusive, and will set values less than (but not equal to) \code{thresh} or greater than (but not equal to) \code{uthresh} to $0$.  Voxels with values between \code{thresh} and \code{uthresh} (inclusive) will be returned as their original value.  Let us threshold the smoothed image between $30$ and $50$:
+
+
+\gobblepars
+\begin{Schunk}
+\begin{Sinput}
+thresh = fslthresh(t1_to_temp, thresh = 30, uthresh = 50, retimg=TRUE)
+\end{Sinput}
+\end{Schunk}
+
+The result is presented in Figure~\ref{fig:fslr_func}\protect\subref*{thresh}.
+
+\subsection{Eroding and dilating images}
+In many applications, one wants to erode (i.e. shrink) an image mask.  The \pkg{fslr} function \code{fslerode} performs this operations.  Note, if no options are specified for the kernel (in the \code{kopts} argument), the default $3\times3\times3$ voxel box kernel is used.  Here we erode the binarized image from above and plot the voxels eroded:
+
+
+
+
+\begin{Schunk}
+\begin{Sinput}
+eroded = fslerode(binned, retimg=TRUE)
+\end{Sinput}
+\end{Schunk}
+
+The result is presented in Figure~\ref{fig:fslr_func}\protect\subref*{ero}.  If one inverts the binary mask, performs erosion, and then inverts the resulting erosion mask, this procedure is equivalent to dilation.  The \pkg{fslr} function \code{fsldilate} (version 1.4 and above) will also perform image dilation.
+
+\begin{figure}
+  \subfloat{
+  \label{smooth}
+\includegraphics[width = 0.245\textwidth]{figure/smoother-1.png}
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{bin}
+\includegraphics[width = 0.245\textwidth]{figure/binned-1.png}
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{thresh}
+\includegraphics[width = 0.245\textwidth]{figure/thresh-1.png} 
+} \hspace*{-0.9em}
+\hfill
+  \subfloat{
+  \label{ero}
+  \includegraphics[width = 0.245\textwidth]{figure/ero-1.png}
+}
+\caption{{\bf Results of \pkg{fslr} functions.}  We present the smoothed registered-to-template T1 image~\protect\subref{smooth}, binarized image~\protect\subref{bin}, thresholded image~\protect\subref{thresh}, and image of the eroded voxels after eroding the binarized image \protect\subref{ero}.  }
+\label{fig:fslr_func}
+\end{figure}
+
+
+\subsection{Extracting image information}
+Although most \pkg{fslr} functions provide an image as the designated output, one may wish to extract image information from a NIfTI file on disk, without reading it into R.  The \pkg{fslr} \code{fslstats}, \code{fslval}, and \code{fslhd} functions are particularly useful and call functions of the same name from FSL.
+
+For example, we can extract the number of slices in of the third dimension of the bias-corrected T1 image using \code{fslval}:
+\begin{Schunk}
+\begin{Sinput}
+fslval("01-Baseline_T1_FSL_BiasCorrect_Brain", keyword = "dim3")
+\end{Sinput}
+\end{Schunk}
+\gobblepars
+\begin{Schunk}
+\begin{Soutput}
+[1] "124"
+\end{Soutput}
+\end{Schunk}
+
+We could also extract the entire header using \code{fslhd} and assign it to an object:
+\begin{Schunk}
+\begin{Sinput}
+img_hdr = fslhd("01-Baseline_T1_FSL_BiasCorrect_Brain")
+\end{Sinput}
+\end{Schunk}
+
+We can extract the mean of the image of non-zero voxels:
+\begin{Schunk}
+\begin{Sinput}
+fslstats("01-Baseline_T1_FSL_BiasCorrect_Brain", opts = "-M")
+\end{Sinput}
+\end{Schunk}
+\gobblepars
+\begin{Schunk}
+\begin{Soutput}
+[1] "51.264791"
+\end{Soutput}
+\end{Schunk}
+
+Overall, there are many functions and options that allow the user to compute statistics or obtain header information from an image on disk without having to load it into R, which can reduce computation time.  
+
+\subsection{Additional \pkg{fslr} functionality}
+
+Although the main goal of \pkg{fslr} is to interface R and FSL, there is a set of functions in \pkg{fslr} that are not designed to interface with FSL, but rather provide helper functions for \code{nifti} objects from the \pkg{oro.nifti} package.  We will display 2 example functions: \code{cal\_img} and \code{niftiarr}.  The \code{cal\_img} function resets the \code{cal\_min} and \code{cal\_max} slots on a \code{nifti} object, which are used to determine colors when plotting.  The \code{niftiarr} function copies a \code{nifti} object and replaces the \code{.Data} slot, which contains the actual image intensity values, with a provided array. 
+
+Let us illustrate by discussing 2 ways to mask an image.   We will read in the bias-corrected T1 image and the mask from BET:
+
+
+
+\begin{Schunk}
+\begin{Sinput}
+base_t1 = readNIfTI("01-Baseline_T1_FSL_BiasCorrect", reorient=FALSE)
+base_t1_mask = readNIfTI("01-Baseline_T1_FSL_BiasCorrect_Brain_mask", reorient=FALSE)
+\end{Sinput}
+\end{Schunk}
+
+
+One way to mask the T1 image is to multiply the image by the binary mask:
+\begin{Schunk}
+\begin{Sinput}
+base_t1_1 = base_t1 * base_t1_mask
+class(base_t1_1)
+\end{Sinput}
+\begin{Soutput}
+[1] "array"
+\end{Soutput}
+\end{Schunk}
+
+We see that the resulting object is an array and not a \code{nifti} object (as of \pkg{oro.nifti} version \code{0.4.3}).  This may be a problem when trying to plot or manipulate this object using methods for \code{nifti} objects.  To address this problem, the \code{niftiarr} function in \pkg{fslr} inputs a \code{nifti} object and an \code{array}, and returns a \code{nifti} object with the provided \code{array} in the \code{.Data} slot, copying over the image information from the input \code{nifti} object.   As of \pkg{oro.nifti} version \code{0.5.0}, the output from above will be a \code{nifti} object, but the function explained below, \code{niftiarr}, is still of use in cases when creating a new \code{nifti} object.
+
+\begin{Schunk}
+\begin{Sinput}
+base_t1_1 = niftiarr(base_t1, base_t1_1)
+class(base_t1_1)
+\end{Sinput}
+\begin{Soutput}
+[1] "nifti"
+attr(,"package")
+[1] "oro.nifti"
+\end{Soutput}
+\end{Schunk}
+
+Another way of masking the image is to subset the values of the image that are not in the mask and setting those values to $0$ (or some other value).
+\begin{Schunk}
+\begin{Sinput}
+base_t1_2 = base_t1
+base_t1_2[base_t1_mask == 0] = 0
+class(base_t1_2)
+\end{Sinput}
+\begin{Soutput}
+[1] "nifti"
+attr(,"package")
+[1] "oro.nifti"
+\end{Soutput}
+\end{Schunk}
+
+We see that this correctly returns an object of class \code{nifti}.  One problem is that the we have changed the data in the \code{nifti} object  \code{base\_t1\_2} but did not reset the other slots in this object to reflect this change.
+
+
+In a \code{nifti} object, the \code{cal\_min} and \code{cal\_max} slots equal the minimum and maximum values, respectively, of the data.   The \code{orthographic} function (from \pkg{oro.nifti}) uses these values for plotting; also, if these slots do not equal the minimum and maximum, the \code{writeNIfTI} function (from \pkg{oro.nifti}) will fail.  The \code{cal\_img} is a simple helper function that will set the  \code{cal\_min} and \code{cal\_max} slots to the correct values.  Let us look at the range of the data and the \code{cal\_min} and \code{cal\_max} slots:
+\begin{Schunk}
+\begin{Sinput}
+range(base_t1_2)
+\end{Sinput}
+\begin{Soutput}
+[1]   0.0000 409.3908
+\end{Soutput}
+\begin{Sinput}
+c(base_t1_2@cal_min, base_t1_2@cal_max)
+\end{Sinput}
+\begin{Soutput}
+[1] 0 0
+\end{Soutput}
+\end{Schunk}
+An issue with \code{readNIfTI} function from \pkg{oro.nifti} is that the \code{cal\_min} and \code{cal\_max} slots may be both read as zero.  Let us set these to the range using the \code{cal\_img} command from \pkg{fslr}:
+\begin{Schunk}
+\begin{Sinput}
+base_t1_2 = cal_img(base_t1_2)
+c(base_t1_2@cal_min, base_t1_2@cal_max)
+\end{Sinput}
+\begin{Soutput}
+[1]   0.0000 409.3908
+\end{Soutput}
+\end{Schunk}
+We see that after these operations are done 2 in different ways, the resulting \code{nifti} objects are equivalent.  
+\begin{Schunk}
+\begin{Sinput}
+identical(base_t1_1, base_t1_2)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
+
+Additional helper functions such as these are included in \pkg{fslr} for plotting and image manipulation.
+
+%\section{Difference between Images}
+%Now that we have the images in the same space and a mask for the brain image, we can take a difference of brain-only tissues.  
+
+
+
+% \bibliography{FSLR}
+%\bibliography{muschelli}
+%\AtEveryBibitem{\clearfield{note}}    % clears notes
+
+%
+%\section{Supplemental Material}
+%\section{Z-score and threshold}
+
+
+
+
+
+
+
+
+
+
