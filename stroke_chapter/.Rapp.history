@@ -1,0 +1,6 @@
+load("/Users/johnmuschelli/Dropbox/PhD_Thesis/stroke_chapter/Top_0.01_Pvalues_df.Rda")
+ls()
+dim(dist.mat)
+dim(nkeep)
+nkeep
+sub.mat

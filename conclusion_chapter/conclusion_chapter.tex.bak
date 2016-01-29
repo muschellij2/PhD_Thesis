@@ -1,0 +1,32 @@
+\chapter{Discussion and Conclusion}
+\label{chap:conclusion}
+
+\section{Neuroimaging and R}
+Neuroimaging has become an increasingly popular data type for statisticians to analyze.  Enhancing familiar tools to statisticians, such as R, with the ability to process and analyze neuroimaging data helps statisticians provide complete analyses of data, from raw data to the finished product.  As I have shown in chapter~\ref{chap:fslr}, the packages I have created, largely \pkg{fslr}, aid in that process and provides the necessary functionality.  
+
+Though \pkg{fslr} is highly popular, encouraging others to port their software into R is crucial, as it is commonly overlooked by those in the neuroimaging community.  Many in that community may not know the capabilities above modeling and visualization that R has, such as Shiny applications and reproducible reporting \cite{knitr_pack, knitr_dyn, knitr_book}.  Moreover, those developing packages within R may require some standardization of packages, objects, and syntax, similar to what has been done with genomics in Bioconductor \citep{bioc}.  
+
+\section{CT Analysis}
+Although neuroimaging analysis is dominated by MRI, an increasing number of articles are being published on CT analysis.  As many tools for MRI have been developed, many analyses for CT may try to use these tools.  Some may work as expected, but many likely need to be adapted to CT data.  Also, these methods should be validated in a new cohort of patients.  The Phase III of the MISTIE trial (MISTIE III) has enrolled over $250$ patients, is of the same inclusion criteria as MISTIE II and is a great data set on which to validate.
+
+ 
+\subsection{ICH Segmentation}
+In chapter~\ref{chap:ich_seg}, we have shown that hemorrhage segmentation can be done accurately when compared to manual segmentation.  We can assign the voxels that have hemorrhage to determine the location of the hemorrhage and estimate the volume.  We have not considered, however, measures of uncertainty around these volume estimates.  In the case of logistic regression, each voxel is a predicted probability, for which there are methods to determine a prediction interval around this estimate.  We can use these at each voxel and get a voxel-wise prediction map of the probability of hemorrhage, but this does not take into account the fact that there are multiple voxels with a complex dependence structure.  Incorporating these measures some uncertainty could then be aggregated to create a prediction interval for the volume of the hemorrhage.  Also, although we have over $100$ test scans, validating this in MISTIE III will be crucial as it will enroll $500$ patients not in the data set used in this work. 
+
+The segmentation of ICH presented has only analyzed baseline scans.  This was due to the fact that the patient scans may be very different after treatment assignment.  Follow-up scans on these patients may have anomalies or artifacts not present in the baseline data, especially those who have undergone surgery. Thus, a validation of this method may need to be done on post-operative or longitudinal scans.  
+
+\subsection{Predictive Regions of Stroke Severity}
+In chapter~\ref{chap:stroke}, we have shown an exploratory and descriptive analysis of hemorrhage location in the brain.  We have quantitatively described where hemorrhages occur in the population and an automated way to describe hemorrhage engagement at a population or individual level using previously-made atlases.  We have also shown how voxel-wise testing of hemorrhage location compared to NIHSS may yield areas that are predictive of stroke severity over and above standard covariates.  Even more than in ICH segmentation, validation of these regions in MISTIE III will be crucial.  Using the one-dimensional coverage measure, data in MISTIE III can potentially confirm that this measure does, in fact, explain some of the variability in NIHSS even after adjustment.  
+
+This analysis is proof of concept that more quantitative analyses can be done with CT data, specifically with regards to hemorrhagic stroke.  There is a wealth of data in there and simple processes may yield large results in determining if a patient is likely to recover.  Moreover, there are practical goals that may be easily implemented.  
+
+For example, using a rigid-body registration of a post-operative scan where an intracranial catheter is placed into the hemorrhage to a pre-operative scan may allow researchers to view where the catheter was placed in view of the pre-operative hemorrhage.  As dosing of the catheter or manual suctioning may remove some of the hemorrhage before the post-operative CT scan was done but after the operation, this gives a more accurate picture of catheter placement. As poor catheter placement may delay dosing or require replacement of the catheter, it is important to know if the removal of the hemorrhage occurred versus a bad placement.  
+
+Overall, CT image analysis has may interesting problems, both clinically and statistically.  One large hurdle remains, hoe
+
+%Overall, better communication is required with clinical researchers to discuss what is and what is not possible with CT analysis.  Some projects, though seeminlgy
+
+\section{Conclusion}
+We have shown how tools for neuroimaging can be ported to R, which give them a larger audience to statisticians.  We can use these tools to process CT images.  These tools also can create predictors of intracerebral hemorrhage, which can accurately predict a hemorrhage mask from a CT scan.  Using registration tools and a newly created CT template, we can use these images and hemorrhage masks to quantitatively describe where hemorrhages occur in a population and perform tests to determine which areas of the brain are related to NIHSS if hemorrhage occurs there. 
+%For the approval, of the midnight society, I call this story, PhD Thesis 
+

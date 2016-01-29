@@ -1,0 +1,97 @@
+  @Manual{R,
+    title = {R: A Language and Environment for Statistical Computing},
+    author = {{R Core Team}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2015},
+    url = {https://www.R-project.org/},
+  }
+
+
+
+@Article{jenkinson_fsl_2012,
+  title = {{FSL}},
+  volume = {62},
+  issn = {1053-8119},
+  url = {http://www.sciencedirect.com/science/article/pii/S1053811911010603},
+  doi = {10.1016/j.neuroimage.2011.09.015},
+  abstract = {FSL (the FMRIB Software Library) is a comprehensive library of analysis tools for functional, structural and diffusion MRI brain imaging data, written mainly by members of the Analysis Group, FMRIB, Oxford. For this NeuroImage special issue on “20 years of fMRI” we have been asked to write about the history, developments and current status of FSL. We also include some descriptions of parts of FSL that are not well covered in the existing literature. We hope that some of this content might be of interest to users of FSL, and also maybe to new research groups considering creating, releasing and supporting new software packages for brain image analysis.},
+  number = {2},
+  urldate = {2014-01-15},
+  journal = {NeuroImage},
+  author = {Mark Jenkinson and Christian F. Beckmann and Timothy E. J. Behrens and Mark W. Woolrich and Stephen M. Smith},
+  month = {aug},
+  year = {2012},
+  keywords = {FSL, Software},
+  pages = {782--790},
+  file = {Jenkinson et al_2012_FSL.pdf:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/43UEM2X2/Jenkinson et al_2012_FSL.pdf:application/pdf;ScienceDirect Snapshot:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/5U96IWMX/S1053811911010603.html:text/html;ScienceDirect Snapshot:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/TW7AASNW/Jenkinson et al. - 2012 - FSL.html:text/html;ScienceDirect Snapshot:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/NPJH4HPQ/S1053811911010603.html:text/html},
+}
+
+
+@Article{muschelli2014brainr,
+  title = {{brainR}: Interactive 3 and {4D} Images of High Resolution Neuroimage Data},
+  author = {John Muschelli and Elizabeth Sweeney and Ciprian Crainiceanu},
+  journal = {R Journal},
+  volume = {6},
+  number = {1},
+  pages = {41--48},
+  year = {2014},
+}
+
+
+
+@MISC{rgl,
+  author = {Adler, Daniel and Murdoch, Duncan},
+  title = {{rgl}: 3D visualization device system (OpenGL)},
+  year = {2013},
+  note = {R package version 0.93.928},
+  url = {http://CRAN.R-project.org/package=rgl}
+}
+
+
+@BOOK{opengl,
+  title = {{OpenGL} programming guide: the official guide to learning {OpenGL},
+	versions 3.0 and 3.1},
+  publisher = {Addison-Wesley Professional},
+  year = {2009},
+  author = {Shreiner, Dave and others}
+}
+
+@book{vlaardingerbroek2013magnetic,
+  title={Magnetic resonance imaging: theory and practice},
+  author={Vlaardingerbroek, Marinus T and Boer, Jacques A},
+  year={2013},
+  publisher={Springer Science \& Business Media}
+}
+
+
+@article{muschelli_validated_2015,
+	title = {Validated automatic brain extraction of head {CT} images},
+	issn = {1053-8119},
+	url = {http://www.sciencedirect.com/science/article/pii/S1053811915002700},
+	doi = {10.1016/j.neuroimage.2015.03.074},
+	abstract = {{AbstractBackground}
+X-ray computed tomography ({CT}) imaging of the brain is commonly used in diagnostic settings. Although {CT} scans are primarily used in clinical practice, they are increasingly used in research. A fundamental processing step in brain imaging research is brain extraction - the process of separating the brain tissue from all other tissues. Methods for brain extraction have either been 1) validated but not fully automated, or 2) fully automated and informally proposed, but never formally validated.
+Aim
+To systematically analyze and validate the performance of {FSL}'s brain extraction tool ({BET}) on head {CT} images of patients with intracranial hemorrhage. This was done by comparing the manual gold standard with the results of several versions of automatic brain extraction and by estimating the reliability of automated segmentation of longitudinal scans. The effects of the choice of {BET} parameters and data smoothing is studied and reported.
+Methods
+All images were thresholded using a 0-100 Hounsfield unit ({HU}) range. In one variant of the pipeline, data were smoothed using a 3-dimensional Gaussian kernel (σ = 1 mm3) and re-thresholded to 0-100 {HU}; in the other, data were not smoothed. {BET} was applied using 1 of 3 fractional intensity ({FI}) thresholds: 0.01, 0.1, or 0.35 and any holes in the brain mask were filled.
+
+For validation against a manual segmentation, 36 images from patients with intracranial hemorrhage were selected from 19 different centers from the {MISTIE} (Minimally Invasive Surgery plus recombinant-tissue plasminogen activator for Intracerebral Evacuation) stroke trial. Intracranial masks of the brain were manually created by one expert {CT} reader. The resulting brain tissue masks were quantitatively compared to the manual segmentations using sensitivity, specificity, accuracy, and the Dice Similarity Index ({DSI}). Brain extraction performance across smoothing and {FI} thresholds was compared using the Wilcoxon signed-rank test. The intracranial volume ({ICV}) of each scan was estimated by multiplying the number of voxels in the brain mask by the dimensions of each voxel for that scan. From this, we calculated the {ICV} ratio comparing manual and automated segmentation: I C V automated I C V manual .
+
+To estimate the performance in a large number of scans, brain masks were generated from the 6 {BET} pipelines for 1095 longitudinal scans from 129 patients. Failure rates were estimated from visual inspection. {ICV} of each scan was estimated and an intraclass correlation ({ICC}) was estimated using a one-way {ANOVA}.
+Results
+Smoothing images improves brain extraction results using {BET} for all measures except specificity (all p < 0.01, uncorrected), irrespective of the {FI} threshold. Using an {FI} of 0.01 or 0.1 performed better than 0.35. Thus, all reported results refer only to smoothed data using an {FI} of 0.01 or 0.1. Using an {FI} of 0.01 had a higher median sensitivity (0.9901) than an {FI} of 0.1 (0.9884, median difference: 0.0014, p < 0.001), accuracy (0.9971 vs. 0.9971; median difference: 0.0001, p < 0.001), and {DSI} (0.9895 vs. 0.9894; median difference: 0.0004, p < 0.001) and lower specificity (0.9981 vs. 0.9982; median difference: - 0.0001, p < 0.001). These measures are all very high indicating that a range of {FI} values may produce visually indistinguishable brain extractions. Using smoothed data and an {FI} of 0.01, the mean ({SD}) {ICV} ratio was 1.002 (0.008); the mean being close to 1 indicates the {ICV} estimates are similar for automated and manual segmentation.
+
+In the 1095 longitudinal scans, this pipeline had a low failure rate (5.2\%) and the {ICC} estimate was high (0.929, 95\% {CI}: 0.91, 0.945) for successfully extracted brains.
+Conclusion
+{BET} performs well at brain extraction on thresholded, 1 mm3 smoothed {CT} images with an {FI} of 0.01 or 0.1. Smoothing before applying {BET} is an important step not previously discussed in the literature. Analysis code is provided.},
+	journaltitle = {{NeuroImage}},
+	shortjournal = {{NeuroImage}},
+	author = {Muschelli, John and Ullman, Natalie L. and Mould, W. Andrew and Vespa, Paul and Hanley, Daniel F. and Crainiceanu, Ciprian M.},
+	urldate = {2015-04-20},
+	date = {2015},
+	note = {00000},
+	keywords = {Brain extraction, {CT}, Skull stripping, Validation},
+	file = {ScienceDirect Full Text PDF:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/VV54SDC4/Muschelli et al. - Validated automatic brain extraction of head CT im.pdf:application/pdf;ScienceDirect Snapshot:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/SMAQA4P2/S1053811915002700.html:text/html}
+}

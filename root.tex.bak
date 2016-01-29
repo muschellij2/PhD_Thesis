@@ -3,7 +3,13 @@
 
 
 %\documentclass[12pt,oneside,final]{thesis}
-\documentclass[12pt,oneside,final]{report}
+\documentclass[12pt]{report}
+
+\pdfminorversion=5
+\pdfobjcompresslevel=0
+\usepackage[a-1b]{pdfx}
+
+\usepackage{pdfpages}
 
 \pagestyle{myheadings}
 %\topmargin=0.25in
@@ -15,14 +21,19 @@
 \newdimen \jot \jot=5mm
 \brokenpenalty=10000
  
+
 \usepackage[utf8]{inputenc}
-\DeclareUnicodeCharacter{00A0}{ }
+%\DeclareUnicodeCharacter{00A0}{ }
 \usepackage[T1]{fontenc}
+\usepackage{lmodern} % load a font with all the characters
 %\usepackage{hyperref}
+\usepackage{tocbibind} % need this to contents adding for TOC
 \usepackage{setspace}
 \setstretch{1.05}
 \usepackage{RJournal_nogeom}
-\usepackage[all]{hypcap}
+%\usepackage[all]{hypcap}
+\usepackage[hypcap=true]{caption}
+\hypersetup{linktocpage}
 \usepackage{amsmath,amssymb,array}
 \usepackage{booktabs}
 \usepackage{subfig}
@@ -31,8 +42,28 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{tikz}
+\usepackage{graphics} 
+\usetikzlibrary{positioning}
 \usetikzlibrary{shapes,arrows}
+\usepackage{dcolumn}
+\newcommand{\bbeta}{\mbox{\boldmath $\beta$}}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DOI from Segmentation
+% Don't use - needs hyperref
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\makeatletter
+%\providecommand{\doi}[1]{%
+%  \begingroup
+%    \let\bibinfo\@secondoftwo
+%    \urlstyle{rm}%
+%    \href{http://dx.doi.org/#1}{%
+%      doi:\discretionary{}{}{}%
+%      \nolinkurl{#1}%
+%    }%
+%  \endgroup
+%}
+%\makeatother
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % StartKNITR STUFF
@@ -115,26 +146,30 @@ natbib = true
 }
 
 
+\usepackage{enumerate}
 
 %\tolerance=10000
 
 %\makeglossary % enable the glossary
-\graphicspath{{fslr_chapter/}}
+\graphicspath{{fslr_chapter/}{stroke_chapter/}{ss_chapter/}{ich_chapter/figures/}{ich_chapter/}}
 
 
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
 \begin{document}
- \newcommand{\bm}[1]{ \mbox{\boldmath $ #1 $} }
- \newcommand{\bin}[2]{\left(\begin{array}{@{}c@{}} #1 \\ #2
+
+\newcommand{\bm}[1]{ \mbox{\boldmath $ #1 $} }
+\newcommand{\bin}[2]{\left(\begin{array}{@{}c@{}} #1 \\ #2
              \end{array}\right) }
- \renewcommand{\contentsname}{Table of Contents}
- \baselineskip=24pt
+\renewcommand{\contentsname}{Table of Contents}
+\baselineskip=24pt
  
 % Create cover page of dissertation !
 \pagenumbering{roman}
 \thispagestyle{empty}
 \begin{center}
 \vspace*{.25in}
-{\bf\LARGE{ Computational Methods for Neuroimaging in R: Segmentation of Stroke Hemorrhage in X-ray Computed Tomography Scanning }}\\
+{\bf\LARGE{ Computational Methods for Neuroimaging in R: Stroke Hemorrhage in X-ray Computed Tomography Scanning }}\\
 \vspace*{.75in}
 {\bf by} \\*[18pt]
 \vspace*{.2in}
@@ -152,18 +187,70 @@ Doctor of Philosophy }\\
 {\bf All rights reserved}
 \end{small}
 \end{center}
- 
 
 
+\newpage 
+\include{acknowledgments/acknowledgments}
+%\cleardoublepage
+%\newpage 
+\pagestyle{plain}
+\baselineskip=24pt
+\tableofcontents
+% for the three lines below, change the page numbers if needed!
+%\addtocontents{toc}{\contentsline{chapter}{Table of Contents}{vi}}
+%\addtocontents{toc}{\protect\contentsline{chapter}{\protect\numberline{}Table of Contents}{vi}}
+%\addtocontents{toc}{\protect\contentsline{chapter}{\protect\numberline{}List of Tables}{x}}
+%\addtocontents{toc}{\protect\contentsline{chapter}{\protect\numberline{}List of Figures}{xii}}
+\listoftables
+\listoffigures
 
+\pagenumbering{arabic}
 % add your chapters, best way is to have separate TeX files for each chapter
 %\include{chapter0}
 %\include{chapter1}
 
-\begin{refsection}[fslr_chapter/fslr_chapter.bib]
-\include{fslr_chapter/fslr_chapter}
+\begin{refsection}[intro_chapter/intro_chapter.bib]
+\include{intro_chapter/intro_chapter}
+\cleardoublepage
 \printbibliography[title={References}]
 \end{refsection}
+
+
+\begin{refsection}[fslr_chapter/fslr_chapter.bib]
+\include{fslr_chapter/fslr_chapter}
+\cleardoublepage
+\printbibliography[title={References}]
+\end{refsection}
+
+\begin{refsection}[ich_chapter/ich_chapter.bib]
+\chapter{PItcHPERFeCT: Primary Intracranial Hemorrhage Probability Estimation using Random Forests on CT}
+\label{chap:ich_seg}
+\include{ich_chapter/ich_chapter}
+\cleardoublepage
+\printbibliography[title={References}]
+\end{refsection}
+
+\begin{refsection}[stroke_chapter/stroke_chapter.bib]
+\include{stroke_chapter/stroke_chapter}
+\cleardoublepage
+\printbibliography[title={References}]
+\end{refsection}
+
+\begin{refsection}[ss_chapter/ss_chapter.bib]
+\include{ss_chapter/ss_chapter}
+\cleardoublepage
+\printbibliography[title={References}]
+\end{refsection}
+
+\begin{refsection}[conclusion_chapter/conclusion_chapter.bib]
+\include{conclusion_chapter/conclusion_chapter}
+\cleardoublepage
+\printbibliography[title={References}]
+\end{refsection}
+
+
+\includepdf[pages={-}]{Current_CV.pdf}
+
 
 %\begin{refsection}[thesis.bib]
 %\nocite{*}

@@ -1,0 +1,598 @@
+cmode
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Regress_ROI_NIHSS_Results.Rda")
+cmod
+summary(cmod)
+summary(mod)
+mods
+sapply(mods, summary)
+coef(sapply(mods, summary))
+sapply(mods, summary)
+sapply(mods, function(x) coef(summary(x)))
+sapply(mods, function(x) summary(x))
+x = summary(mods[[1]])
+x
+x$coefficients
+library(stargazer)
+stargazer(mods)
+names(mods)
+loc.levs
+summary(cmod)
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Regress_ROI_NIHSS_Results.Rda")
+cmod
+summary(cmod)
+summary(mods[[``]])
+summary(mods[[1]])
+ls
+dir()
+ls()
+aics()
+aics
+names(mods) = aics[, "nkeep"]
+library(stargazer)
+stargazer(mods)
+?stargazer(mods)
+stargazer(mods, column.labels = names(mods))
+?stargazer(mods, column.labels = names(mods))
+stargazer(mods, column.labels = names(mods), covariate.labels = c("blah", SexMale="mallee"))
+mdos
+mods
+mm = c(mods, "Location Model"=cmod)
+mm
+cmod
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Regress_ROI_NIHSS_Results.Rda")
+cmod
+mm = c(mods, "Location Model"=cmod)
+mm
+mm = list(mods, "Location Model"=cmod)
+m
+mm
+class(mods[[1]])
+class(cmod)
+c(mods, cmod)
+?c
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Regress_ROI_NIHSS_Results.Rda")
+ls()
+aics
+mods
+c(mods, list(cmod))
+mm = c(mods, list(cmod))
+library(stargazer)
+stargazer(mm)
+stargazer
+stargazer:::.stargazer.wrap
+coef(mm[[7]])
+c = coef(mm[[7]])
+c
+names(c) = gsub("LOC", "", names(c))
+c
+coef(mm[[7]]) = c
+coef
+getMethods("coef")
+methods(generic.function="coef")
+coef.default
+?coef
+stats:::coef.default
+mm[[7]]$coefficients = c
+coef(mm[[7]])
+summary(mm[[7]])
+stargazer(mm)
+?stargazer(mm, )
+stargazer(mm, t.auto=FALSE)
+?stargazer(mm, t.auto=FALSE)
+?stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci.auto = TRUE)
+stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE)
+?stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE)
+stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE, summary=FALSE)
+?stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE)
+stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE, summary=FALSE, keep.stat = NULL)
+stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE, summary=FALSE, keep.stat = "")
+?stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE)
+stargazer_stat_code_list()
+? stargazer_stat_code_list
+?stargazer_stat_code_list
+?stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE)
+stargazer(mm, t.auto=FALSE, p.auto=FALSE, ci= TRUE, omit.stat="all")
+ls()
+aic
+aics
+which.min(aics[, "With_Clot"])
+which.min(aics[, "With_Perc"])
+aics[which.min(aics[, "With_Perc"]),]
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Regress_ROI_NIHSS_Results.Rda")#
+nihss.best.mod = which.min(aics[, "With_Perc"])#
+#
+mods = mods[[nihss.best.mod]]
+mods
+summary(mods)
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Population_Table_Engagement.Rda")
+ls()
+tops
+xtabs
+xtabs$EVE_1
+head(xtabs$EVE_1)
+head(xtabs$EVE_1, 20)
+head(xtabs$EVE_1, 10)
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Top_3000_Pvalues_df.Rda")
+pvalimg.tab
+head(pvalimg.tab, 10)
+head(pvalimg.tab[["EVE_1"]], 10)
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Top_0.01_Pvalues_df.Rda")
+pvalimg.tab
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Regress_ROI_NIHSS_Results.Rda")
+load('Regress_ROI_NIHSS_Results.Rda')#
+results = runres()#
+nihss.res = results#
+lres = get.best(results)#
+nihss.best = lres$best.mod#
+nihss.loc = lres$loc.mod#
+nihss.bestr2 = nihss.best$"R$^2$"#
+nihss.locr2 = as.numeric(nihss.loc$"R$^2$")
+runres = function(){#
+    res = reses$adj.r.squared#
+    makeres = function(res, colname, digits=3, yes=TRUE) {#
+        wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%0", 5, ".", 4, "f"), res[, "P.value"])#
+        res[, "N_Voxels"] = str_trim(sprintf("%8.0f", res[, "N_Voxels"]))#
+        res[1, c("N_Voxels", "P.value")] = NA#
+        return(res)#
+    }#
+    res.adj = makeres(reses$adj.r.squared, "Adjusted R2")#
+    res.r2 = makeres(reses$r.squared, "R2")#
+    res.sd = makeres(reses$sigma, "RMSE")#
+    aic = makeres(aics, "AIC", yes=FALSE)#
+    aic$AIC = aic$AIC - min(aic$AIC)#
+    aic$AIC = round(aic$AIC, 2)#
+    epic = makeres(epics, "EPIC", yes=FALSE)#
+    epic$EPIC = epic$EPIC - min(epic$EPIC)#
+    epic$EPIC = round(epic$EPIC, 2) #
+    results = merge(res.adj, res.r2)#
+    results = merge(results, aic)#
+    #results = merge(results, epic)#
+    results = merge(results, res.sd)#
+    results = results[order(results$P.value, na.last = FALSE),]#
+    results[1,"N_Voxels"] = "Location Model"#
+    # colnames(results) = c("Number of Voxels", "P-value", "Adjusted R$^2$", "R$^2$", "EPIC", "RMSE")#
+#
+    colnames(results) = c("Number of Voxels", "P-value", "Adjusted R$^2$", "R$^2$", "AIC", "RMSE")    #
+    return(results)#
+}
+load('Regress_ROI_NIHSS_Results.Rda')#
+results = runres()#
+nihss.res = results#
+lres = get.best(results)#
+nihss.best = lres$best.mod#
+nihss.loc = lres$loc.mod#
+nihss.bestr2 = nihss.best$"R$^2$"#
+nihss.locr2 = as.numeric(nihss.loc$"R$^2$")
+library(stringr)
+load('Regress_ROI_NIHSS_Results.Rda')#
+results = runres()#
+nihss.res = results#
+lres = get.best(results)#
+nihss.best = lres$best.mod#
+nihss.loc = lres$loc.mod#
+nihss.bestr2 = nihss.best$"R$^2$"#
+nihss.locr2 = as.numeric(nihss.loc$"R$^2$")
+v
+get.best = function(results){#
+    res = results#
+    cn = colnames(results)#
+    cn = cn[ ! cn%in% c("Number of Voxels", "P-value")]#
+    for (icol in cn) results[, icol] = as.numeric(results[, icol])#
+    x1 = sapply(-results[, c("Adjusted R$^2$", "R$^2$")], rank)#
+    x2 = sapply(results[, c("AIC", "RMSE")], rank)#
+    x = data.frame(cbind(x1, x2))#
+    best = sapply(x, function(z) which(z == 1))#
+    stopifnot(length(unique(best)) == 1)#
+    best = best[1]#
+    best.mod = results[best,]#
+    # stopifnot(best.mod[, "P-value"] == .01)#
+    loc = res[res[, "Number of Voxels"] == "Location Model",]#
+    return(list(best.mod=best.mod, loc.mod = loc))#
+}
+load('Regress_ROI_NIHSS_Results.Rda')#
+results = runres()#
+nihss.res = results#
+lres = get.best(results)#
+nihss.best = lres$best.mod#
+nihss.loc = lres$loc.mod#
+nihss.bestr2 = nihss.best$"R$^2$"#
+nihss.locr2 = as.numeric(nihss.loc$"R$^2$")
+nihss.best
+nihss.arat = sprintf("%.0f", (nihss.bestar2 / nihss.locar2 - 1) * 100)#
+#
+@#
+<<rungcs>>=#
+load('Regress_ROI_GCS_Results.Rda')#
+results = runres()#
+gcs.res = results#
+lres = get.best(results)#
+gcs.best = lres$best.mod#
+gcs.loc = lres$loc.mod#
+gcs.bestr2 = gcs.best$"R$^2$"#
+gcs.bestar2 = gcs.best$"Adjusted R$^2$"#
+gcs.locr2 = as.numeric(gcs.loc$"R$^2$")#
+gcs.locar2 = as.numeric(gcs.loc$"Adjusted R$^2$")#
+gcs.rat = sprintf("%.0f", (gcs.bestr2 / gcs.locr2 - 1) * 100)#
+gcs.arat = sprintf("%.0f", (gcs.bestar2 / gcs.locar2 - 1) * 100)
+gcs.arat
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Regress_ROI_GCS_Results.Rda")
+runres = function(){#
+    res = reses$adj.r.squared#
+    makeres = function(res, colname, digits=3, yes=TRUE) {#
+        wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%", 5, ".", 4, "f"), res[, "P.value"])#
+        res[, "N_Voxels"] = str_trim(sprintf("%8.0f", res[, "N_Voxels"]))#
+        res[1, c("N_Voxels", "P.value")] = NA#
+        return(res)#
+    }#
+    res.adj = makeres(reses$adj.r.squared, "Adjusted R2")#
+    res.r2 = makeres(reses$r.squared, "R2")#
+    res.sd = makeres(reses$sigma, "RMSE")#
+    aic = makeres(aics, "AIC", yes=FALSE)#
+    aic$AIC = aic$AIC - min(aic$AIC)#
+    aic$AIC = round(aic$AIC, 2)#
+    epic = makeres(epics, "EPIC", yes=FALSE)#
+    epic$EPIC = epic$EPIC - min(epic$EPIC)#
+    epic$EPIC = round(epic$EPIC, 2) #
+    results = merge(res.adj, res.r2)#
+    results = merge(results, aic)#
+    #results = merge(results, epic)#
+    results = merge(results, res.sd)#
+    results = results[order(results$P.value, na.last = FALSE),]#
+    results[1,"N_Voxels"] = "Location Model"#
+    # colnames(results) = c("Number of Voxels", "P-value", "Adjusted R$^2$", "R$^2$", "EPIC", "RMSE")#
+#
+    colnames(results) = c("Number of Voxels", "P-value", "Adjusted R$^2$", "R$^2$", "AIC", "RMSE")    #
+    return(results)#
+}
+runres()
+library(stringr)
+runres = function(){#
+    res = reses$adj.r.squared#
+    makeres = function(res, colname, digits=3, yes=TRUE) {#
+        wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%", 5, ".", 4, "f"), res[, "P.value"])#
+        res[, "N_Voxels"] = str_trim(sprintf("%8.0f", res[, "N_Voxels"]))#
+        res[1, c("N_Voxels", "P.value")] = NA#
+        return(res)#
+    }#
+    res.adj = makeres(reses$adj.r.squared, "Adjusted R2")#
+    res.r2 = makeres(reses$r.squared, "R2")#
+    res.sd = makeres(reses$sigma, "RMSE")#
+    aic = makeres(aics, "AIC", yes=FALSE)#
+    aic$AIC = aic$AIC - min(aic$AIC)#
+    aic$AIC = round(aic$AIC, 2)#
+    epic = makeres(epics, "EPIC", yes=FALSE)#
+    epic$EPIC = epic$EPIC - min(epic$EPIC)#
+    epic$EPIC = round(epic$EPIC, 2) #
+    results = merge(res.adj, res.r2)#
+    results = merge(results, aic)#
+    #results = merge(results, epic)#
+    results = merge(results, res.sd)#
+    results = results[order(results$P.value, na.last = FALSE),]#
+    results[1,"N_Voxels"] = "Location Model"#
+    # colnames(results) = c("Number of Voxels", "P-value", "Adjusted R$^2$", "R$^2$", "EPIC", "RMSE")#
+#
+    colnames(results) = c("Number of Voxels", "P-value", "Adjusted R$^2$", "R$^2$", "AIC", "RMSE")    #
+    return(results)#
+}
+runres()
+reses
+res = reses$adj.r.squared#
+    makeres = function(res, colname, digits=3, yes=TRUE) {#
+        wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%", 5, ".", 4, "f"), res[, "P.value"])#
+        res[, "N_Voxels"] = str_trim(sprintf("%8.0f", res[, "N_Voxels"]))#
+        res[1, c("N_Voxels", "P.value")] = NA#
+        return(res)#
+    }
+makeres
+res.adj = makeres(reses$adj.r.squared, "Adjusted R2")
+res.adj
+res = reses$r.squared
+wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),]
+res
+res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)
+res
+colname = "Adjusted R2"
+res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)
+digits = 3
+res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)
+res
+yes = TRUE
+if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%", 5, ".", 4, "f"), res[, "P.value"])
+res
+res$P.value
+res[, "P.value"]
+res[, "P.value"])
+res[, "P.value"]
+res = reses$adj.r.squared#
+    makeres = function(res, colname, digits=3, yes=TRUE) {#
+        wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%", 5, ".", 4, "f"), res[, "P.value"])#
+        res[, "N_Voxels"] = str_trim(sprintf("%8.0f", res[, "N_Voxels"]))#
+        res[1, c("N_Voxels", "P.value")] = NA#
+        return(res)#
+    }#
+    res.adj = makeres(reses$adj.r.squared, "Adjusted R2")
+res.adj
+reses$adj.r.squared
+res = reses$adj.r.squared; colname = "Adjusted R2"
+yes
+digits
+wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%", 5, ".", 4, "f"), res[, "P.value"])
+res
+res$P.value
+v
+res = reses$adj.r.squared#
+    makeres = function(res, colname, digits=3, yes=TRUE) {#
+        wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%", 4, ".", 4, "f"), res[, "P.value"])#
+        res[, "N_Voxels"] = str_trim(sprintf("%8.0f", res[, "N_Voxels"]))#
+        res[1, c("N_Voxels", "P.value")] = NA#
+        return(res)#
+    }
+res
+res.adj = makeres(reses$adj.r.squared, "Adjusted R2")
+res.adj
+res = reses$adj.r.squared
+colname = "Adjusted R2"
+wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)
+res
+res$P.value
+res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])
+res$P.value
+paste0("%", 4, ".", 4, "f")
+res[, "P.value"] = sprintf(paste0("%", 0, ".", 4, "f"), res[, "P.value"])
+res
+res[, "P.value"] = sprintf(paste0("%.", 4, "f"), res[, "P.value"])
+res = reses$adj.r.squared
+wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%.", 4, "f"), res[, "P.value"])
+ers
+res
+res$P.value
+wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])
+res = reses$adj.r.squared
+wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])
+res$P.value
+sprintf("%0.1f", res$P.value)
+wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%.", 4, "f"), res[, "P.value"])
+res = reses$adj.r.squared
+wc.adj = res[1,"With_Clot"]#
+        cn = c("With_Perc", "nkeep", "pval")#
+        res = res[, cn]#
+        # res = res[1:nrow(res),] #
+        res = rbind(c(wc.adj, rep(NA, ncol(res)-1)), res)#
+        colnames(res) = c(colname, "N_Voxels", "P.value")#
+        res = as.data.frame(res)#
+        res[, colname] = round(res[, colname], digits)#
+        if (yes) res[, colname] = sprintf(paste0("%0", digits+1, ".", digits, "f"), res[, colname])#
+        res[, "P.value"] = sprintf(paste0("%.", 4, "f"), res[, "P.value"])
+res$P.value
+gsub("^0", "", res$P.value)
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Population_Table.Rda")
+ls()
+head(dfs[[1]])
+(dfs[[1]])
+q('no')
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Top_1000_Pvalues_df.Rda")
+ls()
+q('no')
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Top_1000_Pvalues_df.Rda")
+ls()
+q('no')
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Top_1000_Pvalues_df.Rda")
+ls()
+pop.pcts
+ppcts
+pvalimg.tab
+dfs
+ls()
+pvalimg.tab
+pvalimg.tab$EVE_1
+head(pvalimg.tab$EVE_1)
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Regress_ROI_NIHSS_Results.Rda")
+out = ""#
+LLEV = length(loc.levs)#
+com = ifelse(LLEV == 2, "", ",")
+loc.levs
+library(plyr)
+xx = load('Regress_ROI_NIHSS_Results.Rda')#
+out = ""#
+LLEV = length(loc.levs)#
+loc.levs = revalue(loc.levs, c("Lobar"="Putamen", "Putamen"="Lobar")
+)
+xx = load('Regress_ROI_NIHSS_Results.Rda')#
+out = ""#
+LLEV = length(loc.levs)#
+loc.levs = revalue(loc.levs, c("Lobar"="Putamen", "Putamen"="Lobar"))
+loc.levs
+com = ifelse(LLEV == 2, "", ",")#
+for (ilev in seq_along(loc.levs)){#
+    lev = loc.levs[ilev]#
+    n = loc.tab[ilev]#
+    pct = loc.ptab[ilev]#
+    if (ilev == LLEV) {#
+        out = paste0(out, "and ")#
+    }#
+    out = paste0(out, lev, " ($N = ", n, "$)", com, " ")#
+}#
+out = str_trim(out)#
+out = gsub(",$", "", out)#
+rm(list=xx)
+out
+library(stringr)
+### just getting the N and percent for each location#
+xx = load('Regress_ROI_NIHSS_Results.Rda')#
+out = ""#
+LLEV = length(loc.levs)#
+loc.levs = revalue(loc.levs, c("Lobar"="Putamen", "Putamen"="Lobar"))#
+com = ifelse(LLEV == 2, "", ",")#
+for (ilev in seq_along(loc.levs)){#
+    lev = loc.levs[ilev]#
+    n = loc.tab[ilev]#
+    pct = loc.ptab[ilev]#
+    if (ilev == LLEV) {#
+        out = paste0(out, "and ")#
+    }#
+    out = paste0(out, lev, " ($N = ", n, "$)", com, " ")#
+}#
+out = str_trim(out)#
+out = gsub(",$", "", out)#
+rm(list=xx)
+out
+xx = load('Regress_ROI_NIHSS_Results.Rda')#
+out = ""#
+LLEV = length(loc.levs)#
+loc.levs = revalue(loc.levs, c("Lobar"="Putamen", "Putamen"="Lobar"))#
+com = ifelse(LLEV == 2, "", ",")
+loc.lev
+loc.tab
+xx = load('Regress_ROI_NIHSS_Results.Rda')#
+out = ""#
+LLEV = length(loc.levs)#
+loc.levs = revalue(loc.levs, c("Lobar"="Putamen", "Putamen"="Lobar"))#
+com = ifelse(LLEV == 2, "", ",")
+xx = load('Regress_ROI_NIHSS_Results.Rda')#
+out = ""#
+LLEV = length(loc.levs)#
+loc.levs = revalue(loc.levs, c("Lobar"="Putamen", "Putamen"="Lobar"))#
+com = ifelse(LLEV == 2, "", ",")#
+for (ilev in seq_along(loc.levs)){#
+    lev = loc.levs[ilev]#
+    n = loc.tab[lev]#
+    pct = loc.ptab[ilev]#
+    if (ilev == LLEV) {#
+        out = paste0(out, "and ")#
+    }#
+    out = paste0(out, lev, " ($N = ", n, "$)", com, " ")#
+}#
+out = str_trim(out)#
+out = gsub(",$", "", out)#
+rm(list=xx)
+out
+q('no')
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Top_0.01_Pvalues_df.Rda")
+pvalimg.tab
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Top_0.01_Pvalues_df.Rda")
+pvalimg.tab
+ppcts
+pcts
+ls()
+load("/Users/johnmuschelli/Dropbox/CTR/DHanley/CT_Registration/CT_Pipeline/Top_3000_Pvalues_df.Rda")
+setwd("collapsed_pvalues_df/")
+load("Top_3000_Pvalues_df.Rda")
+col.pvalimg.tab
+q()

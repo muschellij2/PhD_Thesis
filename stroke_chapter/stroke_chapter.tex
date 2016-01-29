@@ -1,0 +1,339 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\newpage 
+%%\section{Title Page}
+%\begin{flushleft}
+%{\Large
+%\textbf{Quantitative Localization of Supratentorial Intracranial Hemorrhage}
+%}
+%\\
+%John Muschelli$^{1,\ast}$, ScM;
+%Natalie L. Ullman$^{2}$, BS;
+%Elizabeth M. Sweeney$^{1}$, ScM;
+%Ani Eloyan$^{1}$, PhD; 
+%Neil Martin$^{3}$, MD;
+%Paul Vespa$^{3}$, MD;
+%Daniel F. Hanley$^{2}$, MD;
+%Ciprian M. Crainiceanu$^{1}$, PhD
+%\\
+%\bf{1} Department of Biostatistics, Bloomberg School of Public Health, Johns Hopkins University, Baltimore, MD
+%\\
+%\bf{2} Department of Neurology, Division of Brain Injury Outcomes,  Johns Hopkins Medical Institutions, Baltimore, MD
+%\\
+%\bf{3} Department of Neurosurgery, David Geffen School of Medicine at UCLA, Los Angeles, CA
+%\\
+%%\bf{4} Section of Neurosurgery and the Neurovascular Surgery Program, University of Chicago Pritzker School of Medicine, Chicago, IL
+%%\\
+%$\ast$ E-mail: jmusche1@jhu.edu
+%\end{flushleft}
+%
+
+\newif\ifseverity
+\severitytrue
+\chapter{Quantitative Localization of Supratentorial Intracranial Hemorrhage}
+\label{chap:stroke}
+
+
+%% Please keep the abstract between 250 and 300 words
+%\section{Abstract}
+%
+%
+%\subsection{Background and Purpose}
+%Standard radiologic description of intracranial hemorrhage (ICH) location is subjective and qualitative.  Using registration of computed tomography (CT) brain images, we provide objective, detailed quantification of ICH location.
+%
+%\subsection{Methods}
+%We analyzed images from patients ($N{=}N$) enrolled in the MISTIE (Minimally Invasive Surgery plus recombinant-tissue plasminogen activator for Intracerebral Evacuation) trial.  We registered CT scans to a CT template, estimated a 3-dimensional map of ICH engagement location, and estimated areas of ICH engagement. 
+%
+%\subsection{Results}
+%In this sample, ICH primarily located in deep brain nuclei and lobar white matter, including the insula, superior temporal gyrus, and the putamen.
+%
+%\subsection{Conclusions}
+%Objective measures of ICH location and engagement using advanced CT imaging processing provide finer, objective, and more quantitative anatomic information than that provided by human readers. 
+%
+%\subsection{Clinical Trial Registration Information}
+%Clinical Trial Registration-URL: \url{http://www.clinicaltrials.gov}. Unique identifier: NCT00224770.
+%
+%
+%{\bf Keywords:} Intracerebral Hemorrhage; CT and MRI
+%
+%\newpage
+
+\section{Introduction}
+
+Intracranial hemorrhage (ICH) results from a blood vessel rupturing into brain tissues and possibly the ventricles. The classification and quantitative descriptions of hemorrhage location using X-ray computed tomography (CT) is complicated: it may extend into multiple brain areas, distend tissues, and break through the ventricular wall. Therefore, routine practice identifies one primary affected anatomic region (e.g.~caudate) \citep{mendelow_early_2013, anderson_intensive_2008, antihypertensive_treatment_of_acute_cerebral_hemorrhage_atach_investigators_antihypertensive_2010} or describes the hemorrhage in relation to a landmark \citep{ziai_multicenter_2014}.
+
+Detailed localization information can be obtained, however, by registering scans to a common template where labeled brain atlases are available. After registration, each patient scan is located in the same stereotaxic template space so information may be combined spatially across scans. We registered CT images to a previously-published CT template \citep{rorden_age-specific_2012}, located in MNI (Montreal Neurological Institute) space, using the provided software. 
+
+Our goal is to quantitatively and objectively characterize ICH location\ifseverity
+, compare this characterization to human labeling, and predict stroke severity scores using ICH location information. 
+\else
+.
+\fi
+
+
+\section{Methods}
+
+To achieve this goal, we 1) created a 3-dimensional (3D) density map of supratentorial hemorrhages\ifseverity
+, 
+\else
+ and 
+\fi 2) provided detailed quantification of hemorrhage engagement of individual neuroanatomic regions\ifseverity
+, 3) performed voxel-wise tests of ICH location on 2 severity scores: Glasgow Coma Scale (GCS) and National Institutes of Health Stroke Scale (NIHSS) and 4) summarized significantly predictive voxel regions into patient-level covariates.
+\else 
+.
+\fi
+
+
+
+\subsection{Subjects and Demographics}
+The population studied consists of 111 patients from the MISTIE (Minimally Invasive Surgery plus recombinant-tissue plasminogen activator for Intracerebral Evacuation) \citep{morgan_preliminary_2008} trial recruited from 26 centers with lobar and deep ICHs $\geq$20mL in volume.    This sample was $31.5$\% female with mean (SD) age of 60.8 (11.2) years.
+
+% Descriptive demographics of age, sex, race, and baseline ICH and intraventricular hemorrhage (IVH) volumes are shown in Table~\ref{t:dem}.  
+
+% CT and clinical data were collected as part of the Johns Hopkins Medicine IRB-approved MISTIE research studies with written consent from participants. 
+
+\thickmuskip=0mu
+
+\subsection{Imaging Data}
+Standard diagnostic CT images were acquired under a standard protocol but with differences across sites.  Scans were acquired using GE ($N{=}46$), Siemens ($N{=}37$), Philips ($N{=}20$), and Toshiba ($N{=}8$) scanners, had gantry tilt ($N{=}87$), and the slice thickness of the image varied within some scans ($N{=}14$). Therefore, the scans analyzed had different voxel (volume element) dimensions and image resolution prior to registration to the template. 
+%These conditions represent a pragmatic sample of stroke center diagnostic imaging.
+\thickmuskip=5mu plus 5mu
+
+
+\subsection{Hemorrhage Segmentation and Location Identification}
+ICH was manually segmented using the OsiriX (v.4.1, Pixmeo; Geneva, Switzerland) by expert readers.  Readers employed a semi-automated approach: a Hounsfield unit range of $40$ to $80$ selected potential regions of ICH \citep{bergstrom_variation_1977, smith_imaging_2006}, then these regions were manually adjusted. Readers identified the anatomic location most engaged by the ICH: putamen ($N{=}68$), lobar ($N{=}33$), globus pallidus ($N{=}6$), and thalamus ($N{=}4$).  The initial mean (SD) ICH volume of this sample was 37.4 (20.1) mL.
+
+
+\subsection{Image Registration}
+The brain image was spatially registered to the CT template using the Clinical toolbox \citep{rorden_age-specific_2012} and the statistical parametric mapping software (SPM8, Wellcome Trust Centre for Neuroimaging, London, UK) in MATLAB (Mathworks, Natick, Massachusetts, USA).  The binary hemorrhage mask was transformed into the template space. No scans were excluded due to inadequate registration, determined by visual inspection.
+
+
+\subsection{ICH Localization and Engagement}
+\label{sec:engage}
+We estimated a 3D histogram of ICH localization: for every voxel in template space, we calculated the proportion of patients who have an ICH at that particular voxel.  
+ 
+%Although prediction of severity score is of interest, standard practice conveys information based on known neuroanatomic regions.  
+We calculated spatial ICH engagement by neuroanatomic region using the ``Eve" atlas \citep{oishi_human_2008}, which segments gray matter (GM) and white matter (WM) regions.  
+Ventricular regions were not explicitly segmented in the Eve atlas.  Any region not classified was reported as cerebrospinal fluid (CSF).
+
+
+From this atlas, we estimated ICH engagement at the population level: 1) the percent of the ICH engaged by region (e.g.~putamen engages 20\% of the ICH) and 2) the percent of each region engaged by the ICH (e.g.~ICH engages 78\% of the putamen).  These summaries of ICH engagement provide a finer description than one location (e.g.~putamen).  
+
+\ifseverity
+In the study population, 1,045,174 voxels (denoted by $V$) had at least one patient with ICH.  We limited our analysis to voxels in the template space where at least 10 patients exhibit ICH (166,202 voxels) to optimize the models for a substantial proportion of the study population.
+
+We tested the association between hemorrhage location and stroke severity by running voxel-wise t-tests, testing the null hypothesis $H_{0}(v):\mu_{1}(v)=\mu_{0}(v)$, where $\mu_{1}(v)$ corresponds to the mean score (NIHSS or GCS) in patients where $ICH{=}1$ at voxel $v$, similarly for $\mu_{0}(v)$. 
+
+
+We created a patient-level covariate that summarizes ICH location information by selecting regions using a sequence of nested p-value thresholds.  We call these regions ``highest predictive regions'' (HPR) because they contain the voxels that are most predictive of the severity scores. 
+We obtained $6$ different HPR, $3$ based on the smallest $1000$, $2000$, or $3000$ lowest p-values and three based on p-values thresholds of $.05$, $.01$, and $.001$. For each HPR, we calculated the HPR ``coverage" for scan $i$: 
+$$
+\text{HPR Coverage}_i = \frac{\text{\# Voxels classified ICH in HPR for scan } i}{\text{\# Voxels in HPR}} \times 100\% \nonumber
+$$
+and used this as a predictor of the severity score ($Y_i$), adjusting for age, sex, and baseline ICH volume (ICHVol):
+\begin{equation}
+{\rm Y}_i = \beta_0 + \beta_1 {\rm Coverage}_i + \gamma_1{\rm Age}_i  +\gamma_2{\rm Sex}_i +\gamma_3{\rm ICHVol}_i + \epsilon_{i} \label{eq:cov}
+\end{equation}
+\thickmuskip=0mu
+We compared model~\eqref{eq:cov} using adjusted $R^2$ to one using a categorical indicator of the expert-specified ICH location, with categories: thalamus, globus pallidus, putamen, and lobar.  
+A permutation test was used: the severity score was randomly permuted, the HPR was estimated, and the adjusted $R^2$ was calculated. The p-value was obtained by comparing the distribution of permuted adjusted $R^2$ with the estimated adjusted $R^2$ from the HPR model. 
+\fi
+\section{Results}
+
+\subsection{Prevalence of ICH Engagement in the Brain}
+
+Figure~\ref{fig:StrokeHist} represents the 3D histogram of hemorrhage prevalence, where colors represent the percentage of patients with ICH engagement at that voxel.  ICH is distributed medially in the brain in this cohort, with a lower concentration at the cortical surface and higher on the left side of the brain.   The majority of voxels have a low prevalence of ICH engagement; the median number of patients with ICH at a voxel is 3 (3\%), though some voxels ($V{=}5685$) have a high prevalence of ${>}40\%$ of the sample population.  
+
+
+\thickmuskip=5mu plus 5mu
+
+%***
+%Combining regions of engagement from the left and right sides of the brain is worthwhile as regions will likely affect severity regardless of the hemisphere engaged. We did not combine these areas, as it may not be straightforward to combine ICH that crosses the mid-sagittal plane. We did attempt to ``symmetrize'' the HPR by including voxels regardless of the side of the brain.  If a voxel on the left side of the brain was included in the HPR, the corresponding voxel on the right side was included in the symmetrized HPR.  We observed similar patterns to Figure 3C and 3D using the symmetrized HPR  (see \url{http://stroke.ahajournals.org}).
+
+
+\subsubsection{ICH Localization and Engagement}
+Table~\ref{t:breakdown} represents the 10 most-engaged regions for the population 3D histogram.  The engagement represents the percent engagement of a specific area compared to all areas engaged.  The 3D histogram of ICH is engaged in areas of the insula, putamen, and primarily the CSF (i.e.~ventricles and subarachnoid spaces). 
+
+We also calculated the engagement of the thalamus, putamen, and globus pallidus by the population 3D histogram.  The population engagement represents the mean proportion of ICH prevalence in the population for that brain region.  On average, 23\% of the putamen, 20\% of the globus pallidus, and 8\% of the thalamus are engaged with ICH from patients in this study. 
+
+Registering images with large deformations caused by the hemorrhage, even those using non-linear registration, will likely have mis-registration artifacts.  Lateral shift caused by the hemorrhage, resulting in compression of ventricles, may lead to mapping some areas of the hemorrhage or tissue to the ventricles in template space.  Combining multiple registration approaches may achieve better results.
+
+
+
+\ifseverity
+\subsubsection{Highest Predictive Region Analysis}
+
+
+
+
+\thinmuskip=0mu
+
+
+For illustration, panel (\protect\subref*{pvals:nihss}) in Figure~\ref{f:roi} displays the region of p-values smaller than $.01$ for the voxel-wise t-tests of NIHSS and panel~(\protect\subref*{pvals:gcs}) displays voxels with the smallest $1000$ p-values testing GCS score. These regions were the HPR with the highest adjusted $R^2$ in \eqref{eq:cov}. We show three orthographic slices for each HPR; the entire regions are available in MNI coordinates. 
+\thinmuskip=3mu
+
+Figure~\ref{f:roi}\protect\subref*{pvals:regnihss} displays the NIHSS score as a function of the coverage of the HPR from Figure~\ref{f:roi}\protect\subref*{pvals:nihss}. Similarly, Figure~\ref{f:roi}\protect\subref*{pvals:reggcs} displays the GCS score as a function of the coverage of the HPR in Figure~\ref{f:roi}\protect\subref*{pvals:gcs}.  The blue line represents a non-parametric LOESS (local regression) \citep{cleveland_local_1992} fit and the red line represents an unadjusted linear model fit.  As expected, the larger the HPR coverage the higher (more severe stroke) the NIHSS score and the lower (deeper unconsciousness) the GCS score.
+
+Adjusted $R^2$ model estimates indicated all HPR coverage models strongly outperform reader-classified location models: the adjusted $R^2$ almost doubled from $0.129$  for the reader-classified location model to $0.254$ for NIHSS; the adjusted $R^2$ more than tripled from $0.069$ for the reader-classified location model to $0.214$ for the HPR coverage model for GCS. 
+
+The permutation test p-values were $<.001$ for HPR of NIHSS and $<.01$ for HPR of GCS, indicating that the selected HPRs were more predictive than HPRs obtained using the same selection procedure when there is no association between location and stroke severity scores. 
+\fi
+
+\section{Discussion}
+
+We have characterized the localization of ICH in a population from prospective clinical trial images using a 3D histogram. We found the well-described medial location of most supratentorial ICHs.   We can create 3D histograms based on subgroups or different study populations and test differences between groups at a voxel level using proportion tests, allowing a fine-scale comparison ICH location across groups.
+
+We also demonstrate how labeled atlases can automatically describe ICH engagement by neuroanatomic regions at a patient or population level. These measures are more interpretable for clinical relevance and may translate to better determination of disability.
+
+
+\subsection{Summary}
+The summary of Eve-atlas ICH engagement presented provided a finer description of location than previously possible by human readers. This type of analysis provides a framework for derivation and testing measures of ICH engagement.  We hope this method will engage others with larger data sets and methodological skills to enhance the use of quantitative localization. 
+
+
+
+\section{Sources of Funding}
+The project described was supported by the grant RO1EB012547 (NIH), T32AG000247 (NIA), R01NS046309, RO1NS060910, RO1NS085211, R01NS046309, U01NS080824 and U01NS062851 (NINDS), and RO1MH095836 (NIMH).
+
+\section{Disclosures}
+Johns Hopkins University holds a use patent for intraventricular tissue plasminogen activator.
+
+
+
+% \section{Acknowledgments}
+
+
+%\clearpage
+%\newpage
+%\thispagestyle{empty}
+%\pagestyle{plain}
+%
+%% \bibliographystyle{plainnat}
+%% \bibliography{CT_Pipeline}
+%\defbibheading{myheading}[References]{%
+%  \section{#1}}
+%\printbibliography[heading=myheading]
+  
+%\printbibliography[title=References]
+
+
+
+
+\clearpage
+\newpage
+\thispagestyle{empty}
+\pagestyle{plain}
+
+
+\section{Tables}
+
+
+%\input{demographics.tex}
+
+
+
+
+
+
+
+%\input{breakdown.tex}
+\input{colbreakdown.tex}
+
+
+
+
+\clearpage
+\newpage
+
+\section{Figures}
+
+\setcounter{figure}{0}
+
+
+\begin{figure}[H]
+\centering
+  \subfloat{
+  \label{prop:img}	
+	\includegraphics[width=.98\textwidth]{Figure4_Proportion_Final.png}
+}
+\caption[{\bf ICH Engagement Prevalence.}]{{\bf ICH Engagement Prevalence.} The proportion of patients with ICH engaging a given voxel are represented in a 3D histogram (right side of image is left side of brain) overlaid on an MRI T1 template. There is a higher prevalence of ICH on the left side of the brain, localized in the middle of the brain, with few extensions in the anterior and posterior areas. The interactive version of this figure is located at \url{http://muschellij2.github.io/CT_Pipeline/index.html}.}
+  \label{fig:StrokeHist}
+\end{figure}
+
+
+
+\ifseverity
+\begin{figure}[H]
+\centering
+  \hfill
+  \subfloat{
+ \label{pvals:nihss}
+ \includegraphics[width=.48\textwidth]{{Top_0.01_pvalues_Final}.png}
+ }
+  \hfill
+  \subfloat{
+ \label{pvals:gcs} 
+ \includegraphics[width=.48\textwidth]{GCS_Top_1000_pvalues_Final.png}
+ } 
+ \newline
+  \hfill
+  \subfloat{
+ \label{pvals:regnihss}
+ \includegraphics[width=.48\textwidth]{Regress_ROI_NIHSS_Best_Model.png}
+ }
+  \hfill
+  \subfloat{
+ \label{pvals:reggcs}
+ \includegraphics[width=.48\textwidth]{Regress_ROI_GCS_Best_Model.png}
+ }  
+  \caption[{\bf Highest Predictive Region (HPR) Analysis.}]{{\bf Highest Predictive Region (HPR) Analysis.}  Panels~\protect\subref{pvals:nihss} and~\protect\subref{pvals:gcs} correspond to the HPR for the top-performing model for NIHSS and GCS scores.  The HPR in \protect\subref{pvals:nihss} represents a p-value threshold of $.0100$ ($19047$ voxels) for the voxel-wise p-value of ICH on NIHSS. The HPR in \protect\subref{pvals:gcs} represents $1000$ with the lowest p-values for the voxel-wise ICH on GCS score regressions.
+    Panels~\protect\subref{pvals:regnihss} and~\protect\subref{pvals:reggcs} plot the relationship of the HPR coverage and severity score.  The red line represents a linear fit, the blue line--a LOESS fit.  The larger the HPR coverage the higher (more severe) the NIHSS and the lower (deeper unconsciousness) the GCS.
+}
+  \label{f:roi}
+\end{figure}
+\fi
+
+
+
+%
+%\clearpage
+%\newpage
+%
+%\thispagestyle{empty}
+%\pagestyle{plain}
+%
+%\setcounter{figure}{0}
+%\renewcommand{\thefigure}{\Roman{figure}}
+%\setcounter{table}{0}
+%\renewcommand{\thetable}{\Roman{table}}
+

@@ -1,8 +1,54 @@
+%\documentclass[12pt]{report}
+%\newcommand{\pkg}[1]{\texttt{#1}}
+%\newcommand{\CRANpkg}[1]{\texttt{#1}}
+%\usepackage[
+%style = authoryear, 
+%sorting = none, 
+%dashed = false,
+%maxbibnames = 99,
+%backend = bibtex,
+%natbib = true
+%]{biblatex}
+%\begin{document}
+
+
 \chapter{Introduction}
+\label{chap:intro}
 
-Neuroimaging for statisticians has been increasing in time
-FSLR
-SKull stripping
-ICH Segmentation
-Implications
 
+The following thesis is laid out in separate chapters.  The chapters will include: 1) fslr: connecting the FSL software with R, 2) Segmentation of intracerebral hemorrhage in computed tomography scans using random forests, and 3) Quantitative localization of intracerebral hemorrhages.
+
+\section{Creating New Tools: R Packages}
+One of the overall goals of my work during my time as a student has been to build tools for analysis, with a specific target population of statisticians as users.  In chapter~\ref{chap:fslr}, we discuss the \pkg{fslr} package we develop for the R programming language \citep{R}.  This package interfaces with FSL (FMRIB Software Library), a commonly-used software for processing and analyzing neuroimaging data \citep{jenkinson_fsl_2012}.  Although this package has essentially the same functionality of FSL, it allows R users to interface with tested software without learning specific syntax.  Mainly, we want to allow statisticians to process and analyze neuroimaging data in the same software they do their analysis, which is becoming more commonly R.  
+
+I have created a series of other R packages and will discuss them here.  Much of neuroimaging analysis is done in MATLAB (The Mathworks, Natick, Massachusetts, USA), especially as the neuroimaging field has had a root in engineering and MATLAB is a commonly-used software in engineering.  Moreover, the largely popular statistical parametric mapping software (SPM) (Wellcome Trust Centre for Neuroimaging, London, UK) has been implemented in MATLAB.  Although MATLAB has a similar syntax to R in some cases, many statisticians do not use MATLAB.  Thus, statisticians who primarily or exclusively use R for analysis do not have access to the large suite of neuroimaging tools. 
+
+As such, I created the \pkg{matlabr} package to easily call MATLAB code and scripts from R and return the results if necessary.  Building on top of this package, I created the \CRANpkg{spm12r} package which downloads the SPM (version 12, SPM12) software and provides R functions to call relevant SPM12 functions and processing pipelines.  Although most of my research here will be on structural neuroimaging, these pipelines can be applied to functional magnetic resonance imaging (fMRI), a highly popular research tool for analyzing the brain.  
+ 
+Conveying the results of these analyses is crucial for collaboration, so we created the \CRANpkg{brainR} package \citep{muschelli2014brainr}.  This package relies on \pkg{rgl}, an R implementation of the graphics programming interface Open Graphics Library (OpenGL) \citep{opengl}, that allows for 3D rendering.  These rendered objects can be interactively explored on screen. \pkg{brainR} uses \pkg{rgl} to generate the figures and export these figures as webpages using WebGL, the web implementation of OpenGL.  Using these objects and the X Toolkit (XTK) (\url{https://github.com/xtk/X}), one can create customizable webpages with versatile user-interaction capabilities. 
+
+Overall, one of the large goals of my work has been to implement analyses within R and port the functionality of other neuroimaging software into R for statisticians to use.  This has allowed for the implementation of full pipelines in R and allows a large community to use tools without learning specific syntax for that software.  Overall, I believe these tools will allow statisticians to more easily perform imaging-specific processes for analysis and give them greater control of the complete analysis pipeline.
+
+\section{Computed Tomography: Trials and Successes}
+Research in neuroimaging is dominated by magnetic resonance imaging (MRI), with over 20,000 publications per year \citep{vlaardingerbroek2013magnetic}.  X-ray computed tomography (CT) is used extensively for diagnosis and prognosis, but is primarily focused on clinical applications.   After working with the aforementioned MRI software tools, I found that the direct application of these to CT were not always sufficient.  Therefore, I adapt some of the tools for MRI for CT processing and the same analytic framework from MRI for CT analysis.
+
+In \citet{muschelli_validated_2015}, I create an analysis pipeline to take a raw CT image and perform brain extraction.  This operation determines which areas of the image are located within the skull, including brain tissue, ventricles, the brain stem, and in the cases of patients with stroke, the stroke hemorrhage.  We use the brain extraction tool (BET), introduced and validated by \citet{smith_fast_2002}, a function of FSL \citep{jenkinson_fsl_2012}.  
+
+A similar method had been proposed previously \citep{solomon_user-friendly_2007, rorden_age-specific_2012} but never formally validated or performed on a large number of scans.  In \citet{muschelli_validated_2015}, we validate $36$ images from $36$ patients with intracranial hemorrhage using our segmentation method compared to those done manually by one expert CT reader and had a high level of overlap.  We further analyze $1095$ longitudinal scans from $129$ patients and found the failure rates are low ($5.2\%$) and the intracranial volume is estimated consistently in the same patient (intraclass correlation coefficient: $0.929$, $95\%$ {CI}: $0.91$, $0.945$).
+
+Though brain segmentation can give you an good estimate of intracranial volume, it can also be seen as a crucial preprocessing step towards doing analysis on the brain.  In chapter~\ref{chap:ich_seg}, we employ this skull stripping as a preliminary and crucial step in the analysis.  After we obtain a  brain-only image, we create a series of derivative images from the single CT scan by using morphological operations, such as smoothing, taking local neighborhood moments, such as standard deviation and skew, and normalizing images with respect to intensity or space.  
+
+After creating these predictors, we create a voxel (3-dimensional pixel or ``volume element'') selection procedure to filter the areas likely to be hemorrhage.  We then create statistical models for the probability a given voxel represents a hemorrhage in the brain.  We use the binary mask given by manual segmentation of the hemorrhage as the outcome in these models.  We employ logistic regression, logistic regression with a LASSO penalty, a generalized additive model, and a random forest algorithm to predict the voxel probability.  We use a small training set of images ($N=10$) and predict on a set of test images ($N=102$) and estimated high overlap between the predicted binary hemorrhage mask and the mask done by manual segmentation.  Overall, we chose the random forest algorithm because it had the highest overlap and the highest Pearson correlation between the estimated volume and the manual segmentation volume $0.932$ (95\% CI: $0.901, 0.954$).
+
+
+\section{Computed Tomography: Moving to Biomarkers}
+In chapter~\ref{chap:stroke}, we look at population level analyses of CT scans of patients with hemorrhage.  In this chapter we registered the CT scans to a CT template \citep{rorden_age-specific_2012}, which is located in ``template space'', which can be considered a population-level space.  Each scan is registered to this image, and a transformation is estimated.  We then apply this transformation to the manually-segmented hemorrhage masks to put the hemorrhage masks in the template space.  Although we use the hemorrhage masks from manual segmentation as they are the gold standard, we could just have easily used the predicted segmentation from the method described in chapter~\ref{chap:ich_seg}.  
+
+Now that scans and masks from different patients are in the same space, the voxels should be comparable across patients.  We first average the hemorrhage masks to create a 3-dimensional map of where hemorrhages occur in this population.  As this template is in the same space as analyses commonly done with MRI, there are whole-brain segmentations, referred to as atlases, which assign each voxel to a specific structure of the brain.  Using an atlas, we can then describe the areas of the brain where hemorrhages are engaged in this population, giving a more quantitative description of location.  For example, a reader may assign a patient to having a hemorrhage in the putamen, whereas our method could estimate that the hemorrhage is 67\% in the putamen and describe the other areas the hemorrhage engages.  Therefore, we believe this process allows us to get an automated measure of engagement and one that is more quantitative than the categorical classification currently done by readers.  
+
+We also perform an exploratory analysis that does testing a each voxel to see whether the presence of a hemorrhage is associated with a stroke severity score, the National Institute of Health Stroke Scale (NIHSS).  At each voxel, we perform a t-test, which yields a p-value.  We threshold this p-value, which yields a ``high predictive region'' for NIHSS.  For each patient, we create a one-dimensional measure describing how much a the hemorrhage from that patient engages with this region.  We show that this measure is more predictive of NIHSS compared to the categorical classification currently done, even after adjusting for other known variables associated with NIHSS.  Further validation of these regions is needed.
+%
+%Thus, we have shown how tools for neuroimaging can be ported to R, which give them a larger audience to statisticians.  We can use these tools to process CT images.  These tools also can create predictors of intracerebral hemorrhage, which can accurately predict a hemorrhage mask from a CT scan.  Using registration tools and a newly created CT template, we can use these images and hemorrhage masks to quantitatively describe where hemorrhages occur in a population and perform tests to determine which areas of the brain are related to NIHSS if hemorrhage occurs there.  
+
+%We have created 
+%\end{document}

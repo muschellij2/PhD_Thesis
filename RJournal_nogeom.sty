@@ -46,18 +46,19 @@
 \RequirePackage[scaled=1.02]{inconsolata}
 \RequirePackage[T1]{fontenc}
 
-\RequirePackage[hyphens]{url}
-\RequirePackage{hyperref}
+%\RequirePackage[hyphens]{url}
+\RequirePackage[pdfa]{hyperref}
 
 % Dark blue colour for all links
 \RequirePackage{color}
 \definecolor{link}{rgb}{0.45,0.51,0.67}
 \hypersetup{
-  colorlinks,%
-  citecolor=link,%
-  filecolor=link,%
-  linkcolor=link,%
-  urlcolor=link
+   unicode,
+    colorlinks=true,%
+   citecolor=link,%
+   filecolor=link,%
+   linkcolor=link,%
+   urlcolor=link
 }
 
 % Give the text a little room to breath

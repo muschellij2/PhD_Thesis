@@ -47,6 +47,7 @@
 %}
 
 \chapter{\pkg{fslr}: Connecting the FSL Software with R}
+\label{chap:fslr}
 \section{Introduction}
 \label{sec:intro}
 
@@ -140,7 +141,7 @@ We can observe the difference in voxel values from the baseline T1 image compare
   \label{t1_vs_bc_t1_zoom}
   \includegraphics[width = 0.245\textwidth]{figure/plot_bc_data_zoom-1.pdf}
 }
-\caption{{\bf Results of Inhomogeneity Correction.}  We present the original T1 image~\protect\subref{t1_ortho}, bias-corrected T1 image~\protect\subref{bc_t1_ortho}, and the scatterplot of the sampled values comparing the values from the T1 image to the bias-corrected values \protect\subref{t1_vs_bc_t1}.  We see in panel~\protect\subref*{t1_vs_bc_t1} for values in the low range of the data ($< 10$), the T1 values and bias-corrected T1 values, on average, fall along the diagonal (blue line), which is further illustrated in panel~\protect\subref*{t1_vs_bc_t1_zoom}, which plots values $< 40$.  Values $> 10$ for the original T1 image are lower than the bias-corrected T1 values shown by a generalized additive model (GAM) smoother (pink line, panel~\protect\subref*{t1_vs_bc_t1}).  }
+\caption[\bf Results of Inhomogeneity Correction.]{{\bf Results of Inhomogeneity Correction.}  We present the original T1 image~\protect\subref{t1_ortho}, bias-corrected T1 image~\protect\subref{bc_t1_ortho}, and the scatterplot of the sampled values comparing the values from the T1 image to the bias-corrected values \protect\subref{t1_vs_bc_t1}.  We see in panel~\protect\subref*{t1_vs_bc_t1} for values in the low range of the data ($< 10$), the T1 values and bias-corrected T1 values, on average, fall along the diagonal (blue line), which is further illustrated in panel~\protect\subref*{t1_vs_bc_t1_zoom}, which plots values $< 40$.  Values $> 10$ for the original T1 image are lower than the bias-corrected T1 values shown by a generalized additive model (GAM) smoother (pink line, panel~\protect\subref*{t1_vs_bc_t1}).  }
 \label{fig:bias_correct}
 \end{figure}
 
@@ -207,7 +208,7 @@ Note that each \pkg{fslr} function has a corresponding help function, which is t
   \label{flair_t1_ortho}
 \includegraphics[width = 0.42\textwidth]{figure/FLAIR_Ortho_B_FLIRT.png} 
 }
-\caption{{\bf Results of within-visit co-registration.}  We present the bias-corrected T1 image~\protect\subref{ft1_ortho} and the co-registered bias-corrected FLAIR image~\protect\subref{flair_t1_ortho}.  }
+\caption[{\bf Results of within-visit co-registration.}]{{\bf Results of within-visit co-registration.}  We present the bias-corrected T1 image~\protect\subref{ft1_ortho} and the co-registered bias-corrected FLAIR image~\protect\subref{flair_t1_ortho}.  }
 \label{fig:coreg}
 \end{figure}
 
@@ -218,7 +219,7 @@ Though across-modality comparisons can be achieved by performing within-visit co
 \begin{figure}
 \centering
 \includegraphics[width = 0.9\textwidth]{Reg_Figure_Option1.png}
-\caption{{\bf Between-visit registration process.}  First, we registered all scans within a visit (baseline or follow-up) to the T1 image.  We then registered the follow-up T1 image to the baseline T1 image and applied the transformation to the follow-up T2, FLAIR, and PD images previously co-registered to the follow-up T1 image. }
+\caption[{\bf Between-visit registration process.}]{{\bf Between-visit registration process.}  First, we registered all scans within a visit (baseline or follow-up) to the T1 image.  We then registered the follow-up T1 image to the baseline T1 image and applied the transformation to the follow-up T2, FLAIR, and PD images previously co-registered to the follow-up T1 image. }
 \label{fig:reg}
 \end{figure}
 
@@ -253,7 +254,7 @@ Now, both T1 images are aligned in the space of the baseline T1 image.  We prese
   \label{flirt_fup}
 \includegraphics[width = 0.48\textwidth]{figure/FLIRT_Followup_T1.png} 
 }
-\caption{{\bf Results from FLIRT.} The bias-corrected baseline T1 is presented in~\protect\subref{flirt_base} and the registered bias-corrected follow-up T1 is presented in~\protect\subref{flirt_fup}, each displayed at the same intersection. We observe that the observed images correspond to the same brain area, indicating a good registration. }
+\caption[{\bf Results from FLIRT.}]{{\bf Results from FLIRT.} The bias-corrected baseline T1 is presented in~\protect\subref{flirt_base} and the registered bias-corrected follow-up T1 is presented in~\protect\subref{flirt_fup}, each displayed at the same intersection. We observe that the observed images correspond to the same brain area, indicating a good registration. }
 \label{fig:flirt}
 \end{figure}
 
@@ -319,7 +320,7 @@ In Figure~\ref{fig:reg_results}, we display each image after FLIRT has been appl
   \label{reg_pd_ortho_fup}
   \includegraphics[width = 0.245\textwidth]{figure/01-Followup_PD_FSL_BiasCorrect_rigid_to_BaseT1.png} 
 } \hspace*{-0.9em}
-\caption{{\bf Between-visit registration results.} The complete set of acquired images, first co-registered within visit to the T1 image of that visit, then registered to the baseline T1 image using the follow-up T1 to baseline T1 transformation matrix.  All registrations performed rigid-body transformations.}
+\caption[{\bf Between-visit registration results.}]{{\bf Between-visit registration results.} The complete set of acquired images, first co-registered within visit to the T1 image of that visit, then registered to the baseline T1 image using the follow-up T1 to baseline T1 transformation matrix.  All registrations performed rigid-body transformations.}
 \label{fig:reg_results}
 \end{figure}
 
@@ -355,7 +356,7 @@ We ran BET on the non-corrected T1 image as the \code{-B} option performs inhomo
   \label{bet_brain}
 \includegraphics[width = 0.48\textwidth]{figure/plot_bet_brain.png} 
 }
-\caption{{\bf Results from BET.} In~\protect\subref{bet_mask}, we show the bias-corrected T1 image with the mask from BET overlaid in red.  In~\protect\subref{bet_brain}, we display the extracted brain.  We see that the brain extraction performed well, not including any areas of the skull or the neck while not discarding large areas of the brain.}
+\caption[{\bf Results from BET.}]{{\bf Results from BET.} In~\protect\subref{bet_mask}, we show the bias-corrected T1 image with the mask from BET overlaid in red.  In~\protect\subref{bet_brain}, we display the extracted brain.  We see that the brain extraction performed well, not including any areas of the skull or the neck while not discarding large areas of the brain.}
 \label{fig:bet}
 \end{figure}
 
@@ -450,7 +451,7 @@ The results of the registration can be seen in Figure~\ref{fig:fnirt_slice}.  Ea
   \label{t1_warp_137}
 \includegraphics[width = 0.245\textwidth]{figure/T1_MNI_Ortho_Slice_137.png}
 }\hspace*{-0.9em}
-\caption{{\bf Results from FNIRT.} We present different axial slices of the template (\protect\subref*{mni_ortho_25}, \protect\subref*{mni_ortho_45}, \protect\subref*{mni_ortho_92}, \protect\subref*{mni_ortho_137}) and the registered T1 image (\protect\subref*{t1_warp_25}, \protect\subref*{t1_warp_45}, \protect\subref*{t1_warp_92}, \protect\subref*{t1_warp_137}).  The slices represented are 25 (\protect\subref*{mni_ortho_25}, \protect\subref*{t1_warp_25}), 45 (\protect\subref*{mni_ortho_45}, \protect\subref*{t1_warp_45}), 92 (\protect\subref*{mni_ortho_92}, \protect\subref*{t1_warp_92}) and 137 (\protect\subref*{mni_ortho_137}, \protect\subref*{t1_warp_137}).  We note that areas of the brain coincide between the template and registered image.}
+\caption[{\bf Results from FNIRT.}]{{\bf Results from FNIRT.} We present different axial slices of the template (\protect\subref*{mni_ortho_25}, \protect\subref*{mni_ortho_45}, \protect\subref*{mni_ortho_92}, \protect\subref*{mni_ortho_137}) and the registered T1 image (\protect\subref*{t1_warp_25}, \protect\subref*{t1_warp_45}, \protect\subref*{t1_warp_92}, \protect\subref*{t1_warp_137}).  The slices represented are 25 (\protect\subref*{mni_ortho_25}, \protect\subref*{t1_warp_25}), 45 (\protect\subref*{mni_ortho_45}, \protect\subref*{t1_warp_45}), 92 (\protect\subref*{mni_ortho_92}, \protect\subref*{t1_warp_92}) and 137 (\protect\subref*{mni_ortho_137}, \protect\subref*{t1_warp_137}).  We note that areas of the brain coincide between the template and registered image.}
 \label{fig:fnirt_slice}
 \end{figure}
 
@@ -609,7 +610,7 @@ The result is presented in Figure~\ref{fig:fslr_func}\protect\subref*{ero}.  If 
   \label{ero}
   \includegraphics[width = 0.245\textwidth]{figure/ero-1.png}
 }
-\caption{{\bf Results of \pkg{fslr} functions.}  We present the smoothed registered-to-template T1 image~\protect\subref{smooth}, binarized image~\protect\subref{bin}, thresholded image~\protect\subref{thresh}, and image of the eroded voxels after eroding the binarized image \protect\subref{ero}.  }
+\caption[{\bf Results of \pkg{fslr} functions.}]{{\bf Results of \pkg{fslr} functions.}  We present the smoothed registered-to-template T1 image~\protect\subref{smooth}, binarized image~\protect\subref{bin}, thresholded image~\protect\subref{thresh}, and image of the eroded voxels after eroding the binarized image \protect\subref{ero}.  }
 \label{fig:fslr_func}
 \end{figure}
 
